@@ -44,7 +44,7 @@ export const useAuthStore = create<AuthStore>()(
       },
       isStaff: () => {
         const roles = get().user?.roles ?? [];
-        return roles.some(r => ['lecturer','researcher','admin','management','super_admin'].includes(r));
+        return roles.some(r => ['lecturer','admin','management','super_admin'].includes(r));
       },
     }),
     {

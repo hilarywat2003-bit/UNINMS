@@ -13,7 +13,7 @@ const schema = z.object({
   fullName:     z.string().min(2, 'Full name required'),
   email:        z.string().email('Valid institutional email required'),
   password:     z.string().min(8,'Min 8 chars').regex(/[A-Z]/,'Needs uppercase').regex(/[0-9]/,'Needs number'),
-  role:         z.enum(['student','lecturer','researcher']),
+  role:         z.enum(['student','lecturer']),
   universityId: z.string().uuid('Select your university').optional(),
   departmentId: z.string().uuid().optional(),
   matricNumber: z.string().max(50).optional(),
@@ -26,9 +26,8 @@ type University = { id: string; name: string; short_name: string; state: string;
 type Department = { id: string; name: string; code: string; faculty_name: string };
 
 const ROLES = [
-  { value: 'student',    label: 'Student',    icon: GraduationCap, desc: 'Undergraduate or postgraduate student' },
-  { value: 'lecturer',   label: 'Lecturer',   icon: User,          desc: 'Academic staff member' },
-  { value: 'researcher', label: 'Researcher', icon: Search,        desc: 'Research staff or postdoc' },
+  { value: 'student',  label: 'Student',  icon: GraduationCap, desc: 'Undergraduate or postgraduate student' },
+  { value: 'lecturer', label: 'Lecturer', icon: User,          desc: 'Academic staff, lecturer or researcher' },
 ] as const;
 
 export default function RegisterPage() {

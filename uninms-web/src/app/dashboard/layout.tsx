@@ -20,7 +20,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (roles.some(r => ['admin', 'super_admin'].includes(r))) return 'admin';
     if (roles.includes('management'))                          return 'management';
     if (roles.includes('lecturer'))                            return 'lecturer';
-    if (roles.includes('researcher'))                          return 'researcher';
     if (roles.some(r => ['community_rep', 'industry_partner'].includes(r))) return 'community';
     return 'student';
   })();

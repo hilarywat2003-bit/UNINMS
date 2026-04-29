@@ -163,7 +163,7 @@ function CourseCard({ course }: { course: any }) {
 
 export default function CoursesPage() {
   const { user } = useAuthStore();
-  const isStudent  = !user?.roles?.some(r => ['lecturer','researcher','admin','management','super_admin'].includes(r));
+  const isStudent  = !user?.roles?.some(r => ['lecturer','admin','management','super_admin'].includes(r));
   const isLecturer = user?.roles?.some(r => ['lecturer','admin','management','super_admin'].includes(r));
   const [showEnroll, setShowEnroll]   = useState(false);
   const [showCreate, setShowCreate]   = useState(false);

@@ -36,32 +36,23 @@ const studentNav: NavItem[] = [
 const lecturerNav: NavItem[] = [
   { href: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/profile',     icon: User,            label: 'My profile' },
-  { href: '/courses',     icon: BookMarked,      label: 'My courses',   section: 'Teaching' },
+  // Teaching
+  { href: '/courses',     icon: BookMarked,      label: 'My courses',        section: 'Teaching' },
   { href: '/assignments', icon: ClipboardList,   label: 'Assignments' },
-  { href: '/repository',icon: BookOpen,        label: 'Repository' },
-  { href: '/search',    icon: Search,          label: 'Search' },
-  { href: '/research',  icon: FileText,        label: 'Research pipeline', section: 'Research' },
-  { href: '/journals',  icon: BookOpen,        label: 'Journals' },
+  // Research
+  { href: '/repository',  icon: BookOpen,        label: 'Repository',        section: 'Research' },
+  { href: '/search',      icon: Search,          label: 'Search' },
+  { href: '/research',    icon: FileText,        label: 'Research pipeline' },
+  { href: '/journals',    icon: BookOpen,        label: 'Journals' },
   { href: '/journals/my/submissions', icon: FileText, label: 'My submissions' },
-  { href: '/reviewer',  icon: Star,            label: 'Review assignments' },
-  { href: '/forums',    icon: MessageSquare,   label: 'Forums',     section: 'Community' },
-  { href: '/mentorship',icon: GraduationCap,   label: 'Mentorship' },
-];
-
-const researcherNav: NavItem[] = [
-  { href: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/profile',      icon: User,            label: 'My profile' },
-  { href: '/repository',   icon: BookOpen,        label: 'Repository',        section: 'Research' },
-  { href: '/search',       icon: Search,          label: 'Search' },
-  { href: '/research',     icon: FileText,        label: 'Research pipeline' },
-  { href: '/journals',     icon: BookOpen,        label: 'Journals' },
-  { href: '/journals/my/submissions', icon: FileText, label: 'My submissions' },
-  { href: '/reviewer',     icon: Star,            label: 'Review assignments' },
-  { href: '/groups',       icon: Users,           label: 'Research groups' },
-  { href: '/intelligence', icon: Brain,           label: 'AI Insights',        section: 'Intelligence' },
-  { href: '/forums',       icon: MessageSquare,   label: 'Forums',             section: 'Community' },
-  { href: '/mentorship',   icon: GraduationCap,   label: 'Mentorship' },
-  { href: '/handover',     icon: Package,         label: 'Knowledge transfer', section: 'Knowledge' },
+  { href: '/reviewer',    icon: Star,            label: 'Review assignments' },
+  { href: '/groups',      icon: Users,           label: 'Research groups' },
+  // Intelligence
+  { href: '/intelligence',icon: Brain,           label: 'AI Insights',       section: 'Intelligence' },
+  // Community
+  { href: '/forums',      icon: MessageSquare,   label: 'Forums',            section: 'Community' },
+  { href: '/mentorship',  icon: GraduationCap,   label: 'Mentorship' },
+  { href: '/handover',    icon: Package,         label: 'Knowledge transfer', section: 'Knowledge' },
 ];
 
 const adminNav: NavItem[] = [
@@ -129,7 +120,6 @@ function getNav(roles: string[]): NavItem[] {
   if (roles.includes('super_admin'))                              base = superAdminNav;
   else if (roles.some(r => ['admin','management'].includes(r)))  base = adminNav;
   else if (roles.includes('lecturer'))                           base = lecturerNav;
-  else if (roles.includes('researcher'))                         base = researcherNav;
   else if (roles.includes('community_rep'))                      base = communityNav;
   else if (roles.includes('industry_partner'))                   base = industryNav;
   else                                                           base = studentNav;

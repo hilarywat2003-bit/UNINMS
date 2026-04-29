@@ -42,20 +42,6 @@
   /* inherits :root defaults */
 }
 
-/* ── Researcher — deep violet (scientific / intellectual) ─────────────────── */
-[data-theme="researcher"] {
-  --sidebar-bg:     #3b1f6e;
-  --accent-50:      #f5f3ff;
-  --accent-100:     #ede9fe;
-  --accent-500:     #8b5cf6;
-  --accent-700:     #7c3aed;
-  --accent-800:     #6d28d9;
-  --accent-900:     #5b21b6;
-  --accent-ring:    rgba(109, 40, 217, 0.25);
-  --accent-shadow:  rgba(109, 40, 217, 0.25);
-  --accent-select:  #ddd6fe;
-  --page-bg:        #faf8ff;
-}
 
 /* ── Admin / Super admin — near-black charcoal (authoritative) ───────────── */
 [data-theme="admin"] {

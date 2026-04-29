@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { analyticsApi, documentsApi, coursesApi, forumsApi, researchApi, groupsApi, intelligenceApi } from '@/lib/api';
@@ -7,7 +7,7 @@ import { BookOpen, Eye, Download, Award, ArrowUpRight, X, FileText, BookMarked, 
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
-// ── Shared helpers ────────────────────────────────────────────────────────────
+// â”€â”€ Shared helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const greeting = (() => {
   const h = new Date().getHours();
@@ -28,7 +28,7 @@ function DocRow({ doc }: { doc: any }) {
   );
 }
 
-// ── Student dashboard ─────────────────────────────────────────────────────────
+// â”€â”€ Student dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function StudentDashboard({ firstName }: { firstName: string }) {
   const { data: meData }     = useQuery({ queryKey: ['analytics','me'],  queryFn: () => analyticsApi.me() });
@@ -47,7 +47,7 @@ function StudentDashboard({ firstName }: { firstName: string }) {
     <div className="max-w-4xl mx-auto">
       {/* Greeting */}
       <div className="mb-6">
-        <h2 className="font-display text-2xl font-semibold text-stone-900">{greeting}, {firstName} 👋</h2>
+        <h2 className="font-display text-2xl font-semibold text-stone-900">{greeting}, {firstName} ðŸ‘‹</h2>
         <p className="text-stone-500 mt-1 text-sm">
           {new Date().toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </p>
@@ -158,7 +158,7 @@ function StudentDashboard({ firstName }: { firstName: string }) {
   );
 }
 
-// ── Researcher dashboard ──────────────────────────────────────────────────────
+// â”€â”€ Researcher dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type ActiveStat = 'publications' | 'views' | 'downloads' | null;
 
@@ -186,352 +186,6 @@ function StatCard({ label, value, icon: Icon, color = 'green', active, onClick }
   );
 }
 
-const PROJECT_STATUS_BADGE: Record<string, string> = {
-  active:    'badge-green',
-  planning:  'badge-blue',
-  completed: 'badge-stone',
-  paused:    'badge-gold',
-};
-
-function ResearcherDashboard({ firstName }: { firstName: string }) {
-  const [activeStat, setActiveStat] = useState<ActiveStat>(null);
-  const { user } = useAuthStore();
-
-  const { data: meData } = useQuery({ queryKey: ['analytics', 'me'], queryFn: () => analyticsApi.me() });
-
-  const { data: projectsData, isLoading: projectsLoading } = useQuery({
-    queryKey: ['research', 'projects'],
-    queryFn:  () => researchApi.projects({ limit: 5 }),
-  });
-
-  const { data: groupsData, isLoading: groupsLoading } = useQuery({
-    queryKey: ['groups', 'mine'],
-    queryFn:  () => groupsApi.list({ limit: 4 }),
-  });
-
-  const { data: collabData } = useQuery({
-    queryKey: ['intelligence', 'collaborators'],
-    queryFn:  () => intelligenceApi.collaborators(5),
-  });
-
-  const { data: recsData } = useQuery({
-    queryKey: ['intelligence', 'recommendations'],
-    queryFn:  () => intelligenceApi.recommendations({ limit: 3 }),
-  });
-
-  const { data: myDocsData, isLoading: myDocsLoading } = useQuery({
-    queryKey: ['documents', 'mine', activeStat],
-    queryFn:  () => documentsApi.list({
-      limit: 20, uploaderId: user?.id,
-      sortBy: activeStat === 'views' ? 'view_count' : activeStat === 'downloads' ? 'download_count' : 'published_at',
-      sortDir: 'DESC',
-    }),
-    enabled: activeStat !== null && !!user?.id,
-  });
-
-  const me             = meData?.data as any;
-  const projects       = (projectsData as any)?.data?.projects ?? [];
-  const groups         = (groupsData as any)?.data?.groups ?? [];
-  const collaborators  = (collabData as any)?.data?.collaborators ?? [];
-  const recommendations= (recsData as any)?.data?.recommendations ?? [];
-  const myDocs         = (myDocsData?.data as any)?.documents ?? [];
-  const totalDocs      = me?.documents?.reduce((a: number, d: any) => a + parseInt(d.count ?? 0), 0) ?? 0;
-  const totalViews     = me?.documents?.reduce((a: number, d: any) => a + parseInt(d.total_views ?? 0), 0) ?? 0;
-  const totalDownloads = me?.documents?.reduce((a: number, d: any) => a + parseInt(d.total_downloads ?? 0), 0) ?? 0;
-  const totalCitations = me?.totalCitations ?? 0;
-
-  const toggleStat = (stat: ActiveStat) => setActiveStat(prev => prev === stat ? null : stat);
-  const detailTitle = activeStat === 'publications' ? 'My Publications' : activeStat === 'views' ? 'Most Viewed' : 'Most Downloaded';
-
-  return (
-    <div className="max-w-6xl mx-auto">
-      {/* Greeting */}
-      <div className="mb-6">
-        <h2 className="font-display text-2xl font-semibold text-stone-900">{greeting}, {firstName} 👋</h2>
-        <p className="text-stone-500 mt-1 text-sm">
-          {new Date().toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-        </p>
-      </div>
-
-      {/* Impact stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-        <StatCard label="Publications"  value={totalDocs}       icon={BookOpen} color="green"  active={activeStat === 'publications'} onClick={() => toggleStat('publications')} />
-        <StatCard label="Total views"   value={totalViews}      icon={Eye}      color="blue"   active={activeStat === 'views'}        onClick={() => toggleStat('views')} />
-        <StatCard label="Downloads"     value={totalDownloads}  icon={Download} color="purple" active={activeStat === 'downloads'}    onClick={() => toggleStat('downloads')} />
-        <StatCard label="Citations"     value={totalCitations}  icon={Award}    color="gold" />
-      </div>
-
-      {/* Drill-down panel */}
-      {activeStat && (
-        <div className="card p-5 mb-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-semibold text-stone-900">{detailTitle}</h3>
-            <button onClick={() => setActiveStat(null)} className="p-1 rounded-lg text-stone-400 hover:bg-stone-100"><X size={16} /></button>
-          </div>
-          {myDocsLoading ? (
-            <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="h-10 skeleton" />)}</div>
-          ) : myDocs.length === 0 ? (
-            <div className="py-8 text-center text-stone-400">
-              <BookOpen size={28} className="mx-auto mb-2 opacity-30" />
-              <p className="text-sm">No publications yet</p>
-              <Link href="/repository/upload" className="btn-primary mt-3 inline-flex text-sm">Upload a document</Link>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {myDocs.map((doc: any) => <DocRow key={doc.id} doc={doc} />)}
-            </div>
-          )}
-          {myDocs.length > 0 && (
-            <Link href="/repository" className="text-xs text-primary-700 hover:underline flex items-center gap-1 mt-3">
-              View all in repository <ArrowUpRight size={11} />
-            </Link>
-          )}
-        </div>
-      )}
-
-      <div className="grid lg:grid-cols-3 gap-5">
-        {/* ── Left / main column ── */}
-        <div className="lg:col-span-2 space-y-5">
-
-          {/* Active research projects */}
-          <div className="card p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display font-semibold text-stone-900">Research projects</h3>
-              <div className="flex items-center gap-2">
-                <Link href="/research" className="text-xs text-primary-700 hover:underline flex items-center gap-1">
-                  View all <ArrowUpRight size={12} />
-                </Link>
-                <Link href="/research" className="btn-primary btn-sm"><Plus size={13} /> New</Link>
-              </div>
-            </div>
-            {projectsLoading ? (
-              <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-16 skeleton" />)}</div>
-            ) : projects.length === 0 ? (
-              <div className="py-8 text-center">
-                <FlaskConical size={28} className="mx-auto mb-2 text-stone-300" />
-                <p className="text-sm text-stone-400 mb-3">No research projects yet</p>
-                <Link href="/research" className="btn-primary text-sm"><Plus size={14} /> Start a project</Link>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {projects.map((p: any) => (
-                  <Link key={p.id} href={`/research/${p.id}`}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-stone-100 hover:border-stone-200 hover:bg-stone-50 transition-all group">
-                    <div className="w-9 h-9 rounded-lg bg-primary-50 flex items-center justify-center flex-shrink-0">
-                      <FlaskConical size={15} className="text-primary-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-stone-800 truncate group-hover:text-primary-700">{p.title}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className={`badge text-xs ${PROJECT_STATUS_BADGE[p.status] ?? 'badge-stone'}`}>{p.status}</span>
-                        {p.member_count != null && (
-                          <span className="text-xs text-stone-400 flex items-center gap-1"><Users size={10} />{p.member_count}</span>
-                        )}
-                        {p.milestone_count != null && (
-                          <span className="text-xs text-stone-400">{p.milestone_count} milestone{p.milestone_count !== 1 ? 's' : ''}</span>
-                        )}
-                      </div>
-                    </div>
-                    <ArrowUpRight size={13} className="text-stone-300 group-hover:text-primary-500 flex-shrink-0" />
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Research groups */}
-          <div className="card p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display font-semibold text-stone-900">Research groups</h3>
-              <Link href="/groups" className="text-xs text-primary-700 hover:underline flex items-center gap-1">
-                View all <ArrowUpRight size={12} />
-              </Link>
-            </div>
-            {groupsLoading ? (
-              <div className="space-y-2">{[...Array(3)].map((_, i) => <div key={i} className="h-12 skeleton" />)}</div>
-            ) : groups.length === 0 ? (
-              <div className="py-6 text-center">
-                <Users size={24} className="mx-auto mb-2 text-stone-300" />
-                <p className="text-sm text-stone-400 mb-2">Not in any research group yet</p>
-                <Link href="/groups" className="btn-secondary text-xs">Browse groups</Link>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                {groups.map((g: any) => (
-                  <Link key={g.id} href={`/groups/${g.id}`}
-                    className="flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-stone-50 transition-colors group">
-                    <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center flex-shrink-0">
-                      <Users size={13} className="text-stone-500" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-stone-700 truncate group-hover:text-primary-700">{g.name}</p>
-                      {g.member_count != null && (
-                        <p className="text-xs text-stone-400">{g.member_count} member{g.member_count !== 1 ? 's' : ''}</p>
-                      )}
-                    </div>
-                    <ArrowUpRight size={13} className="text-stone-300 group-hover:text-primary-500" />
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* AI recommendations */}
-          {recommendations.length > 0 && (
-            <div className="card p-5">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Brain size={16} className="text-purple-600" />
-                  <h3 className="font-display font-semibold text-stone-900">AI research suggestions</h3>
-                </div>
-                <Link href="/intelligence" className="text-xs text-primary-700 hover:underline flex items-center gap-1">
-                  View all <ArrowUpRight size={12} />
-                </Link>
-              </div>
-              <div className="space-y-2">
-                {recommendations.map((r: any) => (
-                  <div key={r.id} className="flex items-start gap-3 p-3 rounded-xl bg-purple-50/50 border border-purple-100">
-                    <Lightbulb size={14} className="text-purple-500 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-stone-800">{r.title ?? r.recommendation_type?.replace(/_/g, ' ')}</p>
-                      {r.description && <p className="text-xs text-stone-500 mt-0.5 line-clamp-2">{r.description}</p>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── Right sidebar ── */}
-        <div className="space-y-5">
-
-          {/* Knowledge points */}
-          {me?.level && (
-            <div className="card p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <Star size={15} className="text-gold-500" />
-                <h3 className="font-display font-semibold text-stone-900">Knowledge points</h3>
-              </div>
-              <p className="text-3xl font-display font-semibold text-stone-900">
-                {(me.level.total_points ?? 0).toLocaleString()}
-              </p>
-              <div className="flex items-center justify-between mt-1 mb-2">
-                <span className="badge badge-gold text-xs">{me.level.current_level}</span>
-                {me.level.points_to_next && (
-                  <span className="text-xs text-stone-400">{me.level.points_to_next} to {me.level.next_level}</span>
-                )}
-              </div>
-              <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                <div className="h-full bg-gold-400 rounded-full" style={{ width: '35%' }} />
-              </div>
-            </div>
-          )}
-
-          {/* Collaborators */}
-          {collaborators.length > 0 && (
-            <div className="card p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <UserCheck size={15} className="text-stone-500" />
-                  <h3 className="font-display font-semibold text-stone-900 text-sm">Top collaborators</h3>
-                </div>
-              </div>
-              <div className="space-y-2">
-                {collaborators.map((c: any) => (
-                  <Link key={c.id} href={`/users/${c.id}/profile`}
-                    className="flex items-center gap-2.5 py-1.5 px-2 rounded-lg hover:bg-stone-50 transition-colors group">
-                    <div className="w-7 h-7 rounded-full bg-primary-50 flex items-center justify-center flex-shrink-0">
-                      <span className="text-primary-700 text-xs font-semibold">
-                        {(c.full_name ?? c.name ?? '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-stone-700 truncate group-hover:text-primary-700">{c.full_name ?? c.name}</p>
-                      {c.shared_count != null && (
-                        <p className="text-xs text-stone-400">{c.shared_count} joint works</p>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Quick actions */}
-          <div className="card p-5">
-            <h3 className="font-display font-semibold text-stone-900 mb-3">Quick actions</h3>
-            <div className="space-y-1">
-              {[
-                { label: 'Upload document',       href: '/repository/upload' },
-                { label: 'New research project',  href: '/research' },
-                { label: 'Browse research groups',href: '/groups' },
-                { label: 'AI insights',           href: '/intelligence' },
-                { label: 'Knowledge transfer',    href: '/handover' },
-                { label: 'Forums',                href: '/forums' },
-              ].map(a => (
-                <Link key={a.href} href={a.href}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-600 hover:bg-stone-50 hover:text-primary-700 transition-colors">
-                  <ArrowUpRight size={13} className="text-stone-400" /> {a.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Lecturer dashboard ────────────────────────────────────────────────────────
-
-function QuickCreateCourseModal({ onClose }: { onClose: () => void }) {
-  const qc = useQueryClient();
-  const [form, setForm] = useState({ title: '', courseCode: '', semester: '', level: '', description: '' });
-  const mutation = useMutation({
-    mutationFn: () => coursesApi.create(form),
-    onSuccess: () => {
-      toast.success('Course created!');
-      qc.invalidateQueries({ queryKey: ['courses'] });
-      onClose();
-    },
-    onError: (err: any) => toast.error(err?.response?.data?.error?.message ?? 'Failed to create course'),
-  });
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
-    setForm(f => ({ ...f, [k]: e.target.value }));
-  return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-card-md w-full max-w-lg p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="font-display text-xl font-semibold text-stone-900">Create course</h3>
-          <button onClick={onClose} className="p-1 rounded-lg text-stone-400 hover:bg-stone-100"><X size={18} /></button>
-        </div>
-        <div className="space-y-3">
-          <input value={form.title} onChange={set('title')} placeholder="Course title *" className="input" autoFocus />
-          <div className="grid grid-cols-2 gap-3">
-            <input value={form.courseCode} onChange={set('courseCode')} placeholder="Code (e.g. CSC301)" className="input" />
-            <select value={form.level} onChange={set('level')} className="input">
-              <option value="">Level</option>
-              {['100','200','300','400','500','600'].map(l => <option key={l} value={l}>{l} level</option>)}
-            </select>
-          </div>
-          <select value={form.semester} onChange={set('semester')} className="input">
-            <option value="">Semester</option>
-            <option value="First">First semester</option>
-            <option value="Second">Second semester</option>
-          </select>
-          <textarea value={form.description} onChange={set('description')} placeholder="Description (optional)" className="input" rows={2} />
-        </div>
-        <div className="flex gap-3 mt-5">
-          <button onClick={onClose} className="btn-secondary flex-1">Cancel</button>
-          <button onClick={() => mutation.mutate()} disabled={!form.title.trim() || mutation.isPending} className="btn-primary flex-1">
-            {mutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus size={14} />} Create
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function LecturerDashboard({ firstName }: { firstName: string }) {
   const [showCreate, setShowCreate] = useState(false);
@@ -556,7 +210,7 @@ function LecturerDashboard({ firstName }: { firstName: string }) {
   const copyId = (id: string) => {
     navigator.clipboard.writeText(id);
     setCopiedId(id);
-    toast.success('Course ID copied — share with students');
+    toast.success('Course ID copied â€” share with students');
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -564,7 +218,7 @@ function LecturerDashboard({ firstName }: { firstName: string }) {
     <div className="max-w-5xl mx-auto">
       {/* Greeting */}
       <div className="mb-6">
-        <h2 className="font-display text-2xl font-semibold text-stone-900">{greeting}, {firstName} 👋</h2>
+        <h2 className="font-display text-2xl font-semibold text-stone-900">{greeting}, {firstName} ðŸ‘‹</h2>
         <p className="text-stone-500 mt-1 text-sm">
           {new Date().toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </p>
@@ -698,7 +352,7 @@ function LecturerDashboard({ firstName }: { firstName: string }) {
   );
 }
 
-// ── Management dashboard ──────────────────────────────────────────────────────
+// â”€â”€ Management dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ManagementDashboard({ firstName }: { firstName: string }) {
   const { data: uniData }  = useQuery({ queryKey: ['analytics','university'], queryFn: () => analyticsApi.university() });
@@ -711,17 +365,17 @@ function ManagementDashboard({ firstName }: { firstName: string }) {
   const docs = (docsData?.data as any)?.documents ?? [];
 
   const kpis = [
-    { label: 'Total users',   value: uni?.users?.total_users      ?? '—', icon: Users,      color: 'bg-primary-50 text-primary-700' },
-    { label: 'Documents',     value: uni?.documents?.total_documents ?? '—', icon: BookOpen,   color: 'bg-blue-50 text-blue-700' },
-    { label: 'Citations',     value: uni?.documents?.total_citations  ?? '—', icon: TrendingUp, color: 'bg-purple-50 text-purple-700' },
-    { label: 'Submissions',   value: uni?.submissions?.total_submissions ?? '—', icon: FileText,   color: 'bg-gold-50 text-gold-600' },
+    { label: 'Total users',   value: uni?.users?.total_users      ?? 'â€”', icon: Users,      color: 'bg-primary-50 text-primary-700' },
+    { label: 'Documents',     value: uni?.documents?.total_documents ?? 'â€”', icon: BookOpen,   color: 'bg-blue-50 text-blue-700' },
+    { label: 'Citations',     value: uni?.documents?.total_citations  ?? 'â€”', icon: TrendingUp, color: 'bg-purple-50 text-purple-700' },
+    { label: 'Submissions',   value: uni?.submissions?.total_submissions ?? 'â€”', icon: FileText,   color: 'bg-gold-50 text-gold-600' },
   ];
 
   return (
     <div className="max-w-5xl mx-auto">
       {/* Greeting */}
       <div className="mb-6">
-        <h2 className="font-display text-2xl font-semibold text-stone-900">{greeting}, {firstName} 👋</h2>
+        <h2 className="font-display text-2xl font-semibold text-stone-900">{greeting}, {firstName} ðŸ‘‹</h2>
         <p className="text-stone-500 mt-1 text-sm">
           {new Date().toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </p>
@@ -816,7 +470,7 @@ function ManagementDashboard({ firstName }: { firstName: string }) {
   );
 }
 
-// ── Community / Industry dashboard ───────────────────────────────────────────
+// â”€â”€ Community / Industry dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function CommunityDashboard({ firstName }: { firstName: string }) {
   const { data: docsData } = useQuery({
@@ -834,7 +488,7 @@ function CommunityDashboard({ firstName }: { firstName: string }) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-6">
-        <h2 className="font-display text-2xl font-semibold text-stone-900">{greeting}, {firstName} 👋</h2>
+        <h2 className="font-display text-2xl font-semibold text-stone-900">{greeting}, {firstName} ðŸ‘‹</h2>
         <p className="text-stone-500 mt-1 text-sm">
           {new Date().toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </p>
@@ -906,20 +560,20 @@ function CommunityDashboard({ firstName }: { firstName: string }) {
   );
 }
 
-// ── Root export ───────────────────────────────────────────────────────────────
+// â”€â”€ Root export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
   const firstName  = user?.fullName?.split(' ')[0] ?? 'there';
   const roles      = user?.roles ?? [];
-  const isStudent     = !roles.some(r => ['lecturer','researcher','admin','management','super_admin','community_rep','industry_partner'].includes(r));
-  const isLecturer    = roles.includes('lecturer')    && !roles.some(r => ['admin','management','super_admin'].includes(r));
-  const isManagement  = roles.includes('management')  && !roles.includes('super_admin');
-  const isCommunity   = roles.some(r => ['community_rep','industry_partner'].includes(r)) && !roles.some(r => ['admin','management','super_admin','lecturer','researcher'].includes(r));
+  const isStudent    = !roles.some(r => ['lecturer','admin','management','super_admin','community_rep','industry_partner'].includes(r));
+  const isLecturer   = roles.includes('lecturer') && !roles.some(r => ['admin','management','super_admin'].includes(r));
+  const isManagement = roles.includes('management') && !roles.includes('super_admin');
+  const isCommunity  = roles.some(r => ['community_rep','industry_partner'].includes(r)) && !roles.some(r => ['admin','management','super_admin','lecturer'].includes(r));
 
-  if (isStudent)   return <StudentDashboard firstName={firstName} />;
-  if (isLecturer)  return <LecturerDashboard firstName={firstName} />;
-  if (isManagement)return <ManagementDashboard firstName={firstName} />;
-  if (isCommunity) return <CommunityDashboard firstName={firstName} />;
-  return <ResearcherDashboard firstName={firstName} />;
+  if (isStudent)    return <StudentDashboard firstName={firstName} />;
+  if (isLecturer)   return <LecturerDashboard firstName={firstName} />;
+  if (isManagement) return <ManagementDashboard firstName={firstName} />;
+  if (isCommunity)  return <CommunityDashboard firstName={firstName} />;
+  return <LecturerDashboard firstName={firstName} />;
 }

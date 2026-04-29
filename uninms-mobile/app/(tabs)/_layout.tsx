@@ -5,14 +5,13 @@ export default function TabLayout() {
   const { user } = useAuthStore();
   const role = user?.role ?? 'student';
 
-  const isResearcher = role === 'researcher';
-  const isStudent    = role === 'student';
+  const isStudent = role === 'student';
 
   return (
     <Tabs screenOptions={{ headerShown: false, tabBarStyle: { display: 'none' } }}>
       <Tabs.Screen name="home" />
-      <Tabs.Screen name="courses"       options={{ href: isResearcher ? null : undefined }} />
-      <Tabs.Screen name="research"      options={{ href: isStudent    ? null : undefined }} />
+      <Tabs.Screen name="courses"  options={{ href: isStudent ? null : undefined }} />
+      <Tabs.Screen name="research" options={{ href: isStudent ? null : undefined }} />
       <Tabs.Screen name="repository" />
       <Tabs.Screen name="forums" />
       <Tabs.Screen name="notifications" />

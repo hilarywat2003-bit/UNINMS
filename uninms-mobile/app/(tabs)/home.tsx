@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import {
   ScrollView, View, Text, TouchableOpacity, ActivityIndicator, RefreshControl,
   Modal, TextInput, StyleSheet,
@@ -14,7 +14,7 @@ import { analyticsApi, notificationsApi, usersApi, coursesApi, documentsApi } fr
 import { ClayCard } from '../../src/components/ClayCard';
 import { getRecentDocs, RecentDoc } from '../../src/utils/viewHistory';
 
-// ── Shared components ─────────────────────────────────────────────────────────
+// â”€â”€ Shared components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function StatCard({ label, value, emoji, color }: { label: string; value: string | number; emoji: string; color: string }) {
   const { colors } = useTheme();
   return (
@@ -50,7 +50,7 @@ function NotifItem({ n }: { n: any }) {
   );
 }
 
-// ── Student Home ───────────────────────────────────────────────────────────────
+// â”€â”€ Student Home â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function StudentHome({ profile, analytics, notifs, isLoading, isRefetching, refetch }: any) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -113,10 +113,10 @@ function StudentHome({ profile, analytics, notifs, isLoading, isRefetching, refe
         <ClayCard style={{ marginBottom: 16 }}>
         <View style={{ padding: 18 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-            <Text style={{ fontSize: 32, marginRight: 12 }}>⭐</Text>
+            <Text style={{ fontSize: 32, marginRight: 12 }}>â­</Text>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 26, fontWeight: '800', color: colors.primary }}>{points} pts</Text>
-              <Text style={{ fontSize: 13, color: colors.textMuted }}>{level} · {toNext} pts to {nextLevel}</Text>
+              <Text style={{ fontSize: 13, color: colors.textMuted }}>{level} Â· {toNext} pts to {nextLevel}</Text>
             </View>
           </View>
           <View style={{ height: 6, backgroundColor: colors.border, borderRadius: 3, overflow: 'hidden' }}>
@@ -132,19 +132,19 @@ function StudentHome({ profile, analytics, notifs, isLoading, isRefetching, refe
           ? <ActivityIndicator color={colors.primary} style={{ marginVertical: 20 }} />
           : (
             <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
-              <StatCard label="Documents" value={docCount} emoji="📄" color={colors.primary} />
-              <StatCard label="Level"     value={levelNum} emoji="🏅" color={colors.success} />
-              <StatCard label="Points"    value={points}   emoji="⭐" color={colors.accent} />
+              <StatCard label="Documents" value={docCount} emoji="ðŸ“„" color={colors.primary} />
+              <StatCard label="Level"     value={levelNum} emoji="ðŸ…" color={colors.success} />
+              <StatCard label="Points"    value={points}   emoji="â­" color={colors.accent} />
             </View>
           )
         }
 
         <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: 10 }}>Quick Access</Text>
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
-          <QuickAction emoji="📚" label="Courses"    onPress={() => router.push('/(tabs)/courses')} accent />
-          <QuickAction emoji="📂" label="Repository" onPress={() => router.push('/(tabs)/repository')} />
-          <QuickAction emoji="💬" label="Forums"     onPress={() => router.push('/(tabs)/forums')} />
-          <QuickAction emoji="🔔" label="Alerts"     onPress={() => router.push('/(tabs)/notifications')} />
+          <QuickAction emoji="ðŸ“š" label="Courses"    onPress={() => router.push('/(tabs)/courses')} accent />
+          <QuickAction emoji="ðŸ“‚" label="Repository" onPress={() => router.push('/(tabs)/repository')} />
+          <QuickAction emoji="ðŸ’¬" label="Forums"     onPress={() => router.push('/(tabs)/forums')} />
+          <QuickAction emoji="ðŸ””" label="Alerts"     onPress={() => router.push('/(tabs)/notifications')} />
         </View>
 
         {recentDocs.length > 0 && (
@@ -157,16 +157,16 @@ function StudentHome({ profile, analytics, notifs, isLoading, isRefetching, refe
                 style={{ marginBottom: 8, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}
               >
                 <View style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 18 }}>🕐</Text>
+                  <Text style={{ fontSize: 18 }}>ðŸ•</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 13, fontWeight: '600', color: colors.text }} numberOfLines={1}>{d.title}</Text>
                   <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 2 }}>
                     {(d.doc_type ?? 'document').replace(/_/g, ' ')}
-                    {d.uploader_name ? ` · ${d.uploader_name}` : ''}
+                    {d.uploader_name ? ` Â· ${d.uploader_name}` : ''}
                   </Text>
                 </View>
-                <Text style={{ color: colors.textMuted, fontSize: 18 }}>›</Text>
+                <Text style={{ color: colors.textMuted, fontSize: 18 }}>â€º</Text>
               </ClayCard>
             ))}
           </View>
@@ -190,13 +190,13 @@ function StudentHome({ profile, analytics, notifs, isLoading, isRefetching, refe
                   width: 42, height: 42, borderRadius: 10,
                   backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <Text style={{ fontSize: 20 }}>📄</Text>
+                  <Text style={{ fontSize: 20 }}>ðŸ“„</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 13, fontWeight: '600', color: colors.text }} numberOfLines={1}>{d.title}</Text>
                   <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 3 }}>
                     {(d.doc_type ?? 'document').replace(/_/g, ' ')}
-                    {' · '}{d.download_count ?? 0} downloads
+                    {' Â· '}{d.download_count ?? 0} downloads
                   </Text>
                 </View>
                 <View style={{
@@ -224,7 +224,7 @@ function StudentHome({ profile, analytics, notifs, isLoading, isRefetching, refe
   );
 }
 
-// ── Lecturer Home ─────────────────────────────────────────────────────────────
+// â”€â”€ Lecturer Home â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function LecturerHome({ profile, analytics, notifs, isLoading, isRefetching, refetch }: any) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -283,19 +283,19 @@ function LecturerHome({ profile, analytics, notifs, isLoading, isRefetching, ref
           ? <ActivityIndicator color={colors.primary} style={{ marginVertical: 24 }} />
           : (
             <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
-              <StatCard label="Courses"   value={courses.length} emoji="📘" color={colors.primary} />
-              <StatCard label="Documents" value={docCount}       emoji="📄" color={colors.success} />
-              <StatCard label="Points"    value={points}         emoji="⭐" color={colors.accent} />
+              <StatCard label="Courses"   value={courses.length} emoji="ðŸ“˜" color={colors.primary} />
+              <StatCard label="Documents" value={docCount}       emoji="ðŸ“„" color={colors.success} />
+              <StatCard label="Points"    value={points}         emoji="â­" color={colors.accent} />
             </View>
           )
         }
 
         <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: 10 }}>Quick Access</Text>
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
-          <QuickAction emoji="📚" label="Courses"    onPress={() => router.push('/(tabs)/courses')} accent />
-          <QuickAction emoji="📂" label="Repository" onPress={() => router.push('/(tabs)/repository')} />
-          <QuickAction emoji="💬" label="Forums"     onPress={() => router.push('/(tabs)/forums')} />
-          <QuickAction emoji="🔔" label="Alerts"     onPress={() => router.push('/(tabs)/notifications')} />
+          <QuickAction emoji="ðŸ“š" label="Courses"    onPress={() => router.push('/(tabs)/courses')} accent />
+          <QuickAction emoji="ðŸ“‚" label="Repository" onPress={() => router.push('/(tabs)/repository')} />
+          <QuickAction emoji="ðŸ’¬" label="Forums"     onPress={() => router.push('/(tabs)/forums')} />
+          <QuickAction emoji="ðŸ””" label="Alerts"     onPress={() => router.push('/(tabs)/notifications')} />
         </View>
 
         {recentDocs.length > 0 && (
@@ -308,16 +308,16 @@ function LecturerHome({ profile, analytics, notifs, isLoading, isRefetching, ref
                 style={{ marginBottom: 8, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}
               >
                 <View style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 18 }}>🕐</Text>
+                  <Text style={{ fontSize: 18 }}>ðŸ•</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 13, fontWeight: '600', color: colors.text }} numberOfLines={1}>{d.title}</Text>
                   <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 2 }}>
                     {(d.doc_type ?? 'document').replace(/_/g, ' ')}
-                    {d.uploader_name ? ` · ${d.uploader_name}` : ''}
+                    {d.uploader_name ? ` Â· ${d.uploader_name}` : ''}
                   </Text>
                 </View>
-                <Text style={{ color: colors.textMuted, fontSize: 18 }}>›</Text>
+                <Text style={{ color: colors.textMuted, fontSize: 18 }}>â€º</Text>
               </ClayCard>
             ))}
           </View>
@@ -338,14 +338,14 @@ function LecturerHome({ profile, analytics, notifs, isLoading, isRefetching, ref
                 onPress={() => router.push('/(tabs)/courses')}
                 style={{ marginBottom: 8, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}
               >
-                <Text style={{ fontSize: 24 }}>📘</Text>
+                <Text style={{ fontSize: 24 }}>ðŸ“˜</Text>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }} numberOfLines={1}>{c.title}</Text>
                   <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 2 }}>
-                    {c.course_code ?? ''} · {c.enrolled_count ?? 0} students
+                    {c.course_code ?? ''} Â· {c.enrolled_count ?? 0} students
                   </Text>
                 </View>
-                <Text style={{ color: colors.textMuted }}>›</Text>
+                <Text style={{ color: colors.textMuted }}>â€º</Text>
               </ClayCard>
             ))}
           </View>
@@ -369,13 +369,13 @@ function LecturerHome({ profile, analytics, notifs, isLoading, isRefetching, ref
                   width: 42, height: 42, borderRadius: 10,
                   backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <Text style={{ fontSize: 20 }}>📄</Text>
+                  <Text style={{ fontSize: 20 }}>ðŸ“„</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 13, fontWeight: '600', color: colors.text }} numberOfLines={1}>{d.title}</Text>
                   <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 3 }}>
                     {(d.doc_type ?? 'document').replace(/_/g, ' ')}
-                    {' · '}{d.download_count ?? 0} downloads
+                    {' Â· '}{d.download_count ?? 0} downloads
                   </Text>
                 </View>
                 <View style={{
@@ -403,7 +403,7 @@ function LecturerHome({ profile, analytics, notifs, isLoading, isRefetching, ref
   );
 }
 
-// ── Upload Modal (Researcher) ─────────────────────────────────────────────────
+// â”€â”€ Upload Modal (Researcher) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const DOC_TYPES = ['research_paper', 'thesis', 'conference_paper', 'journal_article', 'report', 'dataset', 'other'] as const;
 type DocType = typeof DOC_TYPES[number];
 
@@ -453,7 +453,7 @@ function UploadModal({ visible, onClose }: { visible: boolean; onClose: () => vo
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['documents'] });
       qc.invalidateQueries({ queryKey: ['analytics'] });
-      toast.show('Document uploaded — pending review');
+      toast.show('Document uploaded â€” pending review');
       reset(); onClose();
     },
     onError: (e: any) => toast.show(e?.response?.data?.message ?? e?.message ?? 'Upload failed', 'error'),
@@ -480,7 +480,7 @@ function UploadModal({ visible, onClose }: { visible: boolean; onClose: () => vo
           <View style={s.header}>
             <Text style={s.title_}>Upload Research Document</Text>
             <TouchableOpacity onPress={() => { reset(); onClose(); }}>
-              <Text style={{ color: colors.error, fontSize: 22 }}>✕</Text>
+              <Text style={{ color: colors.error, fontSize: 22 }}>âœ•</Text>
             </TouchableOpacity>
           </View>
 
@@ -524,7 +524,7 @@ function UploadModal({ visible, onClose }: { visible: boolean; onClose: () => vo
           }}>
             {file ? (
               <>
-                <Text style={{ fontSize: 28 }}>📎</Text>
+                <Text style={{ fontSize: 28 }}>ðŸ“Ž</Text>
                 <Text style={{ color: colors.text, fontWeight: '600', marginTop: 4, textAlign: 'center' }} numberOfLines={2}>{file.name}</Text>
                 <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 2 }}>
                   {file.size ? `${(file.size / 1024).toFixed(0)} KB` : ''}
@@ -532,7 +532,7 @@ function UploadModal({ visible, onClose }: { visible: boolean; onClose: () => vo
               </>
             ) : (
               <>
-                <Text style={{ fontSize: 28 }}>📂</Text>
+                <Text style={{ fontSize: 28 }}>ðŸ“‚</Text>
                 <Text style={{ color: colors.primary, fontWeight: '600', marginTop: 4 }}>Choose File</Text>
                 <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 2 }}>PDF or Word document</Text>
               </>
@@ -552,185 +552,11 @@ function UploadModal({ visible, onClose }: { visible: boolean; onClose: () => vo
     </Modal>
   );
 }
-
-// ── Researcher Home ───────────────────────────────────────────────────────────
-function ResearcherHome({ profile, analytics, notifs, isLoading, isRefetching, refetch }: any) {
-  const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
-  const router = useRouter();
-  const [showUpload, setShowUpload] = useState(false);
-  const [recentDocs, setRecentDocs] = useState<RecentDoc[]>([]);
-
-  useEffect(() => { getRecentDocs().then(setRecentDocs); }, []);
-
-  const { data: docsRes } = useQuery({
-    queryKey: ['documents', 'mine', profile?.id],
-    queryFn: () =>
-      profile?.id
-        ? documentsApi.list({ uploaderId: profile.id, limit: 5, sortBy: 'published_at' })
-        : documentsApi.list({ limit: 5, sortBy: 'published_at' }),
-  });
-
-  const myDocs: any[] = docsRes?.data?.documents ?? [];
-  const docCount   = analytics?.documents?.length ?? 0;
-  const points     = analytics?.level?.total_points ?? profile?.total_points ?? 0;
-  const citations  = analytics?.totalCitations ?? 0;
-  const level      = analytics?.level?.current_level ?? profile?.current_level ?? 'Contributor';
-
-  return (
-    <>
-    <ScrollView
-      style={{ flex: 1, backgroundColor: colors.background }}
-      contentContainerStyle={{ paddingBottom: 32 }}
-      refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />}
-    >
-      <View style={{ backgroundColor: colors.primary, paddingTop: insets.top + 16, paddingBottom: 40, paddingHorizontal: 20 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <View style={{ flex: 1 }}>
-            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>Research Dashboard</Text>
-            <Text style={{ color: '#fff', fontSize: 22, fontWeight: '700', marginTop: 2 }}>
-              {profile?.full_name ?? 'Researcher'}
-            </Text>
-            <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, marginTop: 4 }}>
-              {profile?.department_name ?? 'Research'} · {level}
-            </Text>
-          </View>
-          <TouchableOpacity onPress={() => router.push('/(tabs)/profile')}
-            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.25)', alignItems: 'center', justifyContent: 'center', marginTop: 2 }}>
-            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>
-              {(profile?.full_name ?? 'R').charAt(0).toUpperCase()}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={{ paddingHorizontal: 16, marginTop: -24 }}>
-        {isLoading
-          ? <ActivityIndicator color={colors.primary} style={{ marginVertical: 24 }} />
-          : (
-            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
-              <StatCard label="Documents" value={docCount}  emoji="📄" color={colors.primary} />
-              <StatCard label="Citations" value={citations} emoji="🔗" color={colors.accent} />
-              <StatCard label="Points"    value={points}    emoji="⭐" color={colors.success} />
-            </View>
-          )
-        }
-
-        <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: 10 }}>Quick Access</Text>
-        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
-          <QuickAction emoji="⬆️"  label="Upload"     onPress={() => setShowUpload(true)} accent />
-          <QuickAction emoji="🔬"  label="Research"   onPress={() => router.push('/(tabs)/research')} />
-          <QuickAction emoji="📂"  label="Repository" onPress={() => router.push('/(tabs)/repository')} />
-          <QuickAction emoji="💬"  label="Forums"     onPress={() => router.push('/(tabs)/forums')} />
-        </View>
-
-        {recentDocs.length > 0 && (
-          <View style={{ marginBottom: 20 }}>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: 10 }}>Recently Viewed</Text>
-            {recentDocs.slice(0, 5).map((d) => (
-              <ClayCard
-                key={d.id}
-                onPress={() => router.push(`/repository/${d.id}` as any)}
-                style={{ marginBottom: 8, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}
-              >
-                <View style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 18 }}>🕐</Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: colors.text }} numberOfLines={1}>{d.title}</Text>
-                  <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 2 }}>
-                    {(d.doc_type ?? 'document').replace(/_/g, ' ')}
-                    {d.uploader_name ? ` · ${d.uploader_name}` : ''}
-                  </Text>
-                </View>
-                <Text style={{ color: colors.textMuted, fontSize: 18 }}>›</Text>
-              </ClayCard>
-            ))}
-          </View>
-        )}
-
-        {/* Recent docs */}
-        {myDocs.length > 0 && (
-          <View style={{ marginBottom: 20 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text }}>My Documents</Text>
-              <TouchableOpacity onPress={() => router.push('/(tabs)/repository')}>
-                <Text style={{ fontSize: 13, color: colors.primary }}>See all</Text>
-              </TouchableOpacity>
-            </View>
-            {myDocs.slice(0, 3).map((d: any) => (
-              <ClayCard
-                key={d.id}
-                onPress={() => router.push(`/repository/${d.id}` as any)}
-                style={{ marginBottom: 8, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}
-              >
-                <View style={{
-                  width: 42, height: 42, borderRadius: 10,
-                  backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Text style={{ fontSize: 20 }}>📄</Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: colors.text }} numberOfLines={1}>
-                    {d.title}
-                  </Text>
-                  <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 3 }}>
-                    {(d.doc_type ?? 'document').replace(/_/g, ' ')}
-                    {' · '}{d.download_count ?? 0} downloads · {d.citation_count ?? 0} citations
-                  </Text>
-                </View>
-                <View style={{
-                  width: 8, height: 8, borderRadius: 4,
-                  backgroundColor: d.is_published ? colors.success : colors.warning,
-                }} />
-              </ClayCard>
-            ))}
-          </View>
-        )}
-
-        {notifs.length > 0 && (
-          <View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text }}>Recent Activity</Text>
-              <TouchableOpacity onPress={() => router.push('/(tabs)/notifications')}>
-                <Text style={{ fontSize: 13, color: colors.primary }}>See all</Text>
-              </TouchableOpacity>
-            </View>
-            {notifs.map((n: any) => <NotifItem key={n.id} n={n} />)}
-          </View>
-        )}
-      </View>
-    </ScrollView>
-    <UploadModal visible={showUpload} onClose={() => setShowUpload(false)} />
-    </>
-  );
-}
-
-// ── Root: picks the right home based on role ──────────────────────────────────
-export default function HomeScreen() {
-  const { user } = useAuthStore();
-  const role = user?.role ?? 'student';
-
-  const { data: analyticsRes, isLoading, refetch, isRefetching } = useQuery({
-    queryKey: ['analytics', 'me'],
-    queryFn: analyticsApi.me,
-  });
-  const { data: profileRes } = useQuery({
-    queryKey: ['profile', 'me'],
-    queryFn: usersApi.me,
-  });
-  const { data: notifRes } = useQuery({
-    queryKey: ['notifications', 'recent'],
-    queryFn: () => notificationsApi.list({ limit: 3 }),
-  });
-
-  const analytics = analyticsRes?.data ?? analyticsRes;
   const profile   = profileRes?.data ?? profileRes;
   const notifs    = notifRes?.data?.notifications ?? [];
 
   const shared = { profile, analytics, notifs, isLoading, isRefetching, refetch };
 
-  if (role === 'lecturer')   return <LecturerHome   {...shared} />;
-  if (role === 'researcher') return <ResearcherHome {...shared} />;
+  if (role === 'lecturer') return <LecturerHome {...shared} />;
   return <StudentHome {...shared} />;
 }

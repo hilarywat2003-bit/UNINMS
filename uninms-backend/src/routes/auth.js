@@ -112,7 +112,7 @@ const registerSchema = z.object({
   fullName:     z.string().min(2).max(255),
   email:        z.string().email(),
   password:     z.string().min(8).regex(/[A-Z]/, 'Needs uppercase').regex(/[0-9]/, 'Needs number'),
-  role:         z.enum(['student','lecturer','researcher','admin','management']).default('student'),
+  role:         z.enum(['student','lecturer','admin','management']).default('student'),
   universityId: z.string().uuid().optional(),
   departmentId: z.string().uuid().optional(),
   matricNumber: z.string().max(50).optional(),

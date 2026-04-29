@@ -34,7 +34,13 @@ const authenticate = async (req, res, next) => {
     if (!rows[0]) throw new AppError('User not found', 401, 'USER_NOT_FOUND');
     if (rows[0].status === 'suspended') throw new AppError('Account suspended', 403, 'ACCOUNT_SUSPENDED');
 
-    req.user = rows[0];
+    const user = rows[0];
+    // Backward-compat: any lingering 'researcher' role tokens are treated as lecturer
+    if (user.roles) {
+      user.roles = user.roles.map(r => r === 'researcher' ? 'lecturer' : r);
+    }
+    if (user.role === 'researcher') user.role = 'lecturer';
+    req.user = user;
     next();
   } catch (err) {
     if (err.name === 'JsonWebTokenError') return next(new AppError('Invalid token', 401, 'INVALID_TOKEN'));

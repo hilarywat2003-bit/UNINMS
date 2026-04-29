@@ -487,7 +487,7 @@ const bcrypt = require('bcryptjs');
 // Platform-level roles (not managed by university IT admins)
 const PLATFORM_ROLES = ['admin', 'management', 'community_rep', 'industry_partner', 'super_admin'];
 // University-scoped roles (managed by IT admins per institution)
-const UNIVERSITY_ROLES = ['student', 'lecturer', 'researcher'];
+const UNIVERSITY_ROLES = ['student', 'lecturer'];
 
 // GET /platform/users?q=&role=&universityId=&status=&page=1&limit=20
 router.get('/users', async (req, res, next) => {

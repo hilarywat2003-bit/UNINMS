@@ -5,17 +5,16 @@ import { adminApi } from '@/lib/api';
 import {
   Users, UserPlus, Search, ChevronLeft, ChevronRight,
   X, Loader2, Upload, CheckCircle2, AlertCircle, Eye, EyeOff,
-  MoreHorizontal, ShieldCheck, ShieldOff, UserX, UserCheck,
+  MoreHorizontal, UserX, UserCheck,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
 
-const ROLES = ['student', 'lecturer', 'researcher', 'management'];
+const ROLES = ['student', 'lecturer', 'management'];
 
 const ROLE_BADGE: Record<string, string> = {
   student: 'badge-green', lecturer: 'badge-blue',
-  researcher: 'badge-purple', management: 'badge-gold',
-  admin: 'badge-stone', super_admin: 'badge-stone',
+  management: 'badge-gold', admin: 'badge-stone', super_admin: 'badge-stone',
 };
 
 /* ── Register single user modal ──────────────────────────────────────────── */
@@ -227,8 +226,6 @@ function UserActions({ user }: { user: any }) {
 
   const isActive    = user.status === 'active';
   const isSuspended = user.status === 'suspended';
-  const hasResearcher = (user.roles ?? []).includes('researcher');
-
   return (
     <div className="relative">
       <button onClick={() => setOpen(o => !o)}
@@ -249,18 +246,6 @@ function UserActions({ user }: { user: any }) {
               <button onClick={() => statusMut.mutate('active')}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-green-700 hover:bg-green-50 transition-colors">
                 <UserCheck size={14} /> Reactivate
-              </button>
-            )}
-            {!hasResearcher && (
-              <button onClick={() => roleMut.mutate({ role: 'researcher', action: 'assign' })}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50 transition-colors">
-                <ShieldCheck size={14} /> Add researcher role
-              </button>
-            )}
-            {hasResearcher && (
-              <button onClick={() => roleMut.mutate({ role: 'researcher', action: 'revoke' })}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50 transition-colors">
-                <ShieldOff size={14} /> Remove researcher role
               </button>
             )}
           </div>

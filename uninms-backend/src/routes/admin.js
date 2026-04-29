@@ -181,7 +181,7 @@ router.post('/users/register', async (req, res, next) => {
       throw new AppError('fullName, email, password and role are required', 422, 'VALIDATION_ERROR');
     }
 
-    const allowedRoles = ['student', 'lecturer', 'researcher', 'management'];
+    const allowedRoles = ['student', 'lecturer', 'management'];
     if (!allowedRoles.includes(role)) {
       throw new AppError(`role must be one of: ${allowedRoles.join(', ')}`, 422, 'VALIDATION_ERROR');
     }
@@ -214,7 +214,7 @@ router.post('/users/bulk-register', async (req, res, next) => {
       throw new AppError('Maximum 200 users per bulk request', 422, 'VALIDATION_ERROR');
     }
 
-    const allowedRoles = ['student', 'lecturer', 'researcher', 'management'];
+    const allowedRoles = ['student', 'lecturer', 'management'];
     const created  = [];
     const failed   = [];
 
