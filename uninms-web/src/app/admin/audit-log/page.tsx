@@ -1,0 +1,107 @@
+'use client';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { adminApi } from '@/lib/api';
+import { ClipboardList, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+
+const ACTION_COLOR: Record<string, string> = {
+  'user.register':       'badge-green',
+  'user.bulk_register':  'badge-green',
+  'user.role.assign':    'badge-blue',
+  'user.role.revoke':    'badge-stone',
+  'user.status.active':  'badge-green',
+  'user.status.suspended': 'badge bg-red-50 text-red-600',
+  'document.approve':    'badge-green',
+  'document.reject':     'badge bg-red-50 text-red-600',
+  'plagiarism.batch_check': 'badge-purple',
+  'analytics.export_csv': 'badge-stone',
+  'settings.plagiarism_threshold': 'badge-gold',
+};
+
+export default function AdminAuditLogPage() {
+  const [page, setPage] = useState(1);
+  const [q, setQ] = useState('');
+  const [activeQ, setActiveQ] = useState('');
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin-audit-log', activeQ, page],
+    queryFn:  () => adminApi.auditLog({ page, limit: 30, q: activeQ || undefined }),
+  });
+
+  const logs       = (data?.data as any)?.logs ?? [];
+  const total      = (data?.data as any)?.total ?? 0;
+  const totalPages = (data?.data as any)?.totalPages ?? 1;
+
+  return (
+    <div className="max-w-5xl mx-auto">
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-stone-500 text-sm">{total.toLocaleString()} log entries</p>
+      </div>
+
+      <form onSubmit={e => { e.preventDefault(); setActiveQ(q); setPage(1); }} className="flex gap-2 mb-5">
+        <div className="relative flex-1">
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Filter by action or user…" className="input pl-10" />
+        </div>
+        <button type="submit" className="btn-secondary px-5">Filter</button>
+      </form>
+
+      {isLoading ? (
+        <div className="space-y-2">{[...Array(8)].map((_, i) => <div key={i} className="h-14 skeleton rounded-xl" />)}</div>
+      ) : logs.length === 0 ? (
+        <div className="card p-16 text-center">
+          <ClipboardList size={40} className="mx-auto mb-3 text-stone-300" />
+          <h3 className="font-display font-semibold text-stone-700 mb-1">No log entries</h3>
+          <p className="text-stone-400 text-sm">Admin actions will appear here.</p>
+        </div>
+      ) : (
+        <div className="card overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-stone-50 border-b border-stone-100">
+              <tr>
+                <th className="text-left text-xs font-semibold text-stone-500 uppercase tracking-wide px-4 py-3">Action</th>
+                <th className="text-left text-xs font-semibold text-stone-500 uppercase tracking-wide px-4 py-3 hidden sm:table-cell">Admin</th>
+                <th className="text-left text-xs font-semibold text-stone-500 uppercase tracking-wide px-4 py-3 hidden lg:table-cell">Details</th>
+                <th className="text-left text-xs font-semibold text-stone-500 uppercase tracking-wide px-4 py-3">When</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-50">
+              {logs.map((log: any) => (
+                <tr key={log.id} className="hover:bg-stone-50 transition-colors">
+                  <td className="px-4 py-3">
+                    <span className={`badge text-xs ${ACTION_COLOR[log.action] ?? 'badge-stone'}`}>
+                      {log.action}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 hidden sm:table-cell">
+                    <p className="text-sm text-stone-700">{log.admin_name ?? log.admin_id}</p>
+                    <p className="text-xs text-stone-400">{log.ip_address}</p>
+                  </td>
+                  <td className="px-4 py-3 hidden lg:table-cell text-xs text-stone-500 max-w-xs">
+                    {log.metadata ? (
+                      <span className="font-mono truncate block">
+                        {JSON.stringify(log.metadata).slice(0, 80)}
+                      </span>
+                    ) : '—'}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-stone-400">
+                    {formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="btn-secondary btn-sm"><ChevronLeft size={14} /></button>
+          <span className="text-sm text-stone-600">Page {page} of {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="btn-secondary btn-sm"><ChevronRight size={14} /></button>
+        </div>
+      )}
+    </div>
+  );
+}

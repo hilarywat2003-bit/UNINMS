@@ -1,0 +1,17 @@
+{
+  "name": "uninms-harvester",
+  "version": "1.0.0",
+  "description": "OAI-PMH harvester for Nigerian institutional journals",
+  "main": "harvest.js",
+  "scripts": {
+    "harvest":        "node harvest.js --source all",
+    "harvest:kashere":"node harvest.js --source kashere_jose",
+    "verify":         "node verify.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "xml2js":     "^0.6.2",
+    "pg":         "^8.11.5",
+    "dotenv":     "^16.4.5"
+  }
+}

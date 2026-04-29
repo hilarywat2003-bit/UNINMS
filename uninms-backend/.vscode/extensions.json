@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "ms-azuretools.vscode-docker",
+    "humao.rest-client",
+    "ckolkman.vscode-postgres",
+    "dbaeumer.vscode-eslint",
+    "rangav.vscode-thunder-client",
+    "mikestead.dotenv",
+    "esbenp.prettier-vscode",
+    "PKief.material-icon-theme"
+  ]
+}

@@ -1,0 +1,56 @@
+version: '3.9'
+
+# ─────────────────────────────────────────────────────────────────
+#  UniNMS LOCAL DEVELOPMENT
+#  Usage: docker compose up postgres redis -d
+# ─────────────────────────────────────────────────────────────────
+
+services:
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: uninms_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       uninms
+      POSTGRES_USER:     uninms_user
+      POSTGRES_PASSWORD: uninms_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uninms_user -d uninms"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: uninms_redis
+    restart: unless-stopped
+    command: redis-server --requirepass uninms_dev_password
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "uninms_dev_password", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Uncomment to run the full API in Docker too (optional for dev)
+  # api:
+  #   build: .
+  #   container_name: uninms_api
+  #   env_file: .env
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     postgres: { condition: service_healthy }
+  #     redis:    { condition: service_healthy }
+
+volumes:
+  postgres_data:
+  redis_data:

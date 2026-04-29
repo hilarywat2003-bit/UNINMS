@@ -1,0 +1,179 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus Jakarta Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Theme variables (default = lecturer / green) ─────────────────────────── */
+:root {
+  --sidebar-w:      256px;
+  --sidebar-bg:     #09432c;
+
+  --accent-50:      #edfaf2;
+  --accent-100:     #d2f4e2;
+  --accent-500:     #1a9e61;
+  --accent-700:     #0a6640;
+  --accent-800:     #0a5235;
+  --accent-900:     #09432c;
+  --accent-ring:    rgba(10, 82, 53, 0.25);
+  --accent-shadow:  rgba(10, 82, 53, 0.25);
+  --accent-select:  #a8e8c7;
+
+  --page-bg:        #fafaf8;
+}
+
+/* ── Student — navy blue (academic) ──────────────────────────────────────── */
+[data-theme="student"] {
+  --sidebar-bg:     #1a3a6e;
+  --accent-50:      #eff6ff;
+  --accent-100:     #dbeafe;
+  --accent-500:     #3b82f6;
+  --accent-700:     #1d4ed8;
+  --accent-800:     #1e40af;
+  --accent-900:     #1e3a8a;
+  --accent-ring:    rgba(30, 64, 175, 0.25);
+  --accent-shadow:  rgba(30, 64, 175, 0.25);
+  --accent-select:  #bfdbfe;
+  --page-bg:        #f8faff;
+}
+
+/* ── Lecturer — forest green (default, matches brand) ────────────────────── */
+[data-theme="lecturer"] {
+  /* inherits :root defaults */
+}
+
+/* ── Researcher — deep violet (scientific / intellectual) ─────────────────── */
+[data-theme="researcher"] {
+  --sidebar-bg:     #3b1f6e;
+  --accent-50:      #f5f3ff;
+  --accent-100:     #ede9fe;
+  --accent-500:     #8b5cf6;
+  --accent-700:     #7c3aed;
+  --accent-800:     #6d28d9;
+  --accent-900:     #5b21b6;
+  --accent-ring:    rgba(109, 40, 217, 0.25);
+  --accent-shadow:  rgba(109, 40, 217, 0.25);
+  --accent-select:  #ddd6fe;
+  --page-bg:        #faf8ff;
+}
+
+/* ── Admin / Super admin — near-black charcoal (authoritative) ───────────── */
+[data-theme="admin"] {
+  --sidebar-bg:     #111827;
+  --accent-50:      #f9fafb;
+  --accent-100:     #f3f4f6;
+  --accent-500:     #6b7280;
+  --accent-700:     #374151;
+  --accent-800:     #1f2937;
+  --accent-900:     #111827;
+  --accent-ring:    rgba(31, 41, 55, 0.25);
+  --accent-shadow:  rgba(31, 41, 55, 0.3);
+  --accent-select:  #d1d5db;
+  --page-bg:        #f8f9fa;
+}
+
+/* ── Management — rich amber/gold (institutional) ────────────────────────── */
+[data-theme="management"] {
+  --sidebar-bg:     #451a03;
+  --accent-50:      #fffbeb;
+  --accent-100:     #fef3c7;
+  --accent-500:     #f59e0b;
+  --accent-700:     #b45309;
+  --accent-800:     #92400e;
+  --accent-900:     #78350f;
+  --accent-ring:    rgba(146, 64, 14, 0.25);
+  --accent-shadow:  rgba(146, 64, 14, 0.25);
+  --accent-select:  #fde68a;
+  --page-bg:        #fffdf8;
+}
+
+/* ── Community / Industry — dark teal (civic / partnership) ──────────────── */
+[data-theme="community"] {
+  --sidebar-bg:     #0d4a4a;
+  --accent-50:      #f0fdfa;
+  --accent-100:     #ccfbf1;
+  --accent-500:     #14b8a6;
+  --accent-700:     #0f766e;
+  --accent-800:     #115e59;
+  --accent-900:     #134e4a;
+  --accent-ring:    rgba(17, 94, 89, 0.25);
+  --accent-shadow:  rgba(17, 94, 89, 0.25);
+  --accent-select:  #99f6e4;
+  --page-bg:        #f8fffe;
+}
+
+@layer base {
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background-color: var(--page-bg);
+    color: #1c1917;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease;
+  }
+  h1,h2,h3 { font-family: Georgia, serif; line-height: 1.2; letter-spacing: -0.02em; }
+  ::selection { background: var(--accent-select); color: var(--accent-900); }
+}
+
+@layer components {
+  .card { @apply bg-white rounded-2xl border border-stone-200 shadow-card; }
+  .card-hover { @apply card transition-all duration-200 hover:shadow-card-md hover:-translate-y-0.5; }
+
+  /* ── Buttons ── */
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium text-sm transition-all duration-150 cursor-pointer focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed; }
+
+  .btn-primary {
+    @apply btn text-white active:scale-[0.98];
+    background-color: var(--accent-800);
+    box-shadow: 0 4px 20px var(--accent-shadow);
+  }
+  .btn-primary:hover  { background-color: var(--accent-900); }
+  .btn-primary:focus-visible { outline: 2px solid var(--accent-700); outline-offset: 2px; }
+
+  .btn-secondary { @apply btn bg-stone-100 text-stone-800 hover:bg-stone-200 border border-stone-200; }
+  .btn-ghost     { @apply btn text-stone-600 hover:bg-stone-100; }
+  .btn-sm        { @apply !px-3 !py-1.5 !text-xs !rounded-lg; }
+
+  /* ── Inputs ── */
+  .input {
+    @apply w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm placeholder:text-stone-400 focus:outline-none transition-all;
+    --tw-ring-color: var(--accent-ring);
+  }
+  .input:focus {
+    border-color: var(--accent-700);
+    box-shadow: 0 0 0 3px var(--accent-ring);
+  }
+  .input-error { @apply border-red-400; }
+  .input-error:focus { box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.25); border-color: #f87171; }
+
+  .label { @apply block text-sm font-medium text-stone-700 mb-1.5; }
+  .field-error { @apply text-xs text-red-500 mt-1; }
+
+  /* ── Badges ── */
+  .badge        { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium; }
+  .badge-green  { @apply badge bg-primary-50 text-primary-700; }
+  .badge-gold   { @apply badge bg-gold-50 text-gold-700; }
+  .badge-stone  { @apply badge bg-stone-100 text-stone-600; }
+  .badge-blue   { @apply badge bg-blue-50 text-blue-700; }
+  .badge-red    { @apply badge bg-red-50 text-red-700; }
+  .badge-purple { @apply badge bg-purple-50 text-purple-700; }
+
+  /* ── Theme-tinted accent badge ── */
+  .badge-accent {
+    @apply badge;
+    background-color: var(--accent-50);
+    color: var(--accent-800);
+  }
+
+  .stat-card { @apply card p-5; }
+  .section-title { @apply text-xs font-semibold uppercase tracking-widest text-stone-400; }
+  .skeleton { @apply bg-gradient-to-r from-stone-100 via-stone-50 to-stone-100 rounded-lg animate-pulse; }
+
+  /* ── Theme accent link ── */
+  .link-accent { color: var(--accent-800); }
+  .link-accent:hover { color: var(--accent-700); text-decoration: underline; }
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d4d1ca; border-radius: 3px; }

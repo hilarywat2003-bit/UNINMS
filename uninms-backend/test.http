@@ -1,0 +1,346 @@
+### ══════════════════════════════════════════════════════
+###  UniNMS API — Test File (VS Code REST Client)
+###  Click "Send Request" above any request to run it
+### ══════════════════════════════════════════════════════
+
+@baseUrl = http://localhost:3000/api/v1
+@token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzODczNDI4MC0wZGQ0LTRiNjktYmVlZS01NDUyYzllNjkyYzEiLCJqdGkiOiIyOTQ4MTc1Ni03NjI3LTRkNzctOTM3ZC0yYzE0OGNjODhlYmEiLCJpYXQiOjE3NzQ2MTI5OTYsImV4cCI6MTc3NDYxMzg5Nn0.vLR9LtLCTP249oPhyU14Ac4wAxcY-yr9U6IAucNNzgY",
+GET http://localhost:3000/health
+
+### ─── Register a new user ───────────────────────────────
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "fullName":   "Dr. Amina Okonkwo",
+  "email":      "amina@uninms.edu.ng",
+  "password":   "Test@1234!",
+  "role":       "researcher"
+}
+
+### ─── Login (copy accessToken from response) ────────────
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email":    "admin@uninms.edu.ng",
+  "password": "Admin@UniNMS2024!"
+}
+
+### ─── Get current user ──────────────────────────────────
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### ─── Upload a document ─────────────────────────────────
+POST {{baseUrl}}/documents
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title":      "Introduction to Machine Learning",
+  "abstract":   "A brief overview of ML concepts and applications.",
+  "docType":    "research_paper",
+  "visibility": "public"
+}
+
+### ─── List documents ────────────────────────────────────
+GET {{baseUrl}}/documents?limit=10&sortBy=published_at
+Authorization: Bearer {{token}}
+
+### ─── Search documents ──────────────────────────────────
+GET {{baseUrl}}/search?q=machine+learning
+Authorization: Bearer {{token}}
+
+### ─── My analytics ──────────────────────────────────────
+GET {{baseUrl}}/analytics/me
+Authorization: Bearer {{token}}
+
+### ─── My notifications ──────────────────────────────────
+GET {{baseUrl}}/notifications
+Authorization: Bearer {{token}}
+
+### ─── My profile ────────────────────────────────────────
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+### ─── Logout ────────────────────────────────────────────
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{token}}
+
+### ══════════════════════════════════════════════════════
+###  RESEARCH PIPELINE
+### ══════════════════════════════════════════════════════
+
+### ─── Create a research project ─────────────────────
+POST {{baseUrl}}/research/projects
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Machine learning for crop yield prediction in northern Nigeria",
+  "abstract": "This study explores the application of supervised ML models to predict sorghum yield using remote sensing data.",
+  "researchType": "applied",
+  "startDate": "2026-04-01",
+  "targetEndDate": "2027-03-31",
+  "fundingSource": "TETFund",
+  "keywords": ["machine learning", "agriculture", "Nigeria", "remote sensing"],
+  "isPublic": true
+}
+
+### ─── List all research projects ───────────────────
+GET {{baseUrl}}/research/projects
+Authorization: Bearer {{token}}
+
+### ─── List my projects only ────────────────────────
+GET {{baseUrl}}/research/projects?mine=true
+Authorization: Bearer {{token}}
+
+### ─── Filter by type ───────────────────────────────
+GET {{baseUrl}}/research/projects?type=applied
+Authorization: Bearer {{token}}
+
+### ─── Get single project (replace :id) ────────────
+@projectId = REPLACE_WITH_PROJECT_ID
+GET {{baseUrl}}/research/projects/{{projectId}}
+Authorization: Bearer {{token}}
+
+### ─── Advance project stage ────────────────────────
+PATCH {{baseUrl}}/research/projects/{{projectId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "stage": "proposal"
+}
+
+### ─── Add a milestone ───────────────────────────────
+POST {{baseUrl}}/research/projects/{{projectId}}/milestones
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Complete literature review",
+  "description": "Review at least 50 papers from 2020-2025",
+  "dueDate": "2026-05-15"
+}
+
+### ─── Toggle milestone done (replace :mId) ────────
+@milestoneId = REPLACE_WITH_MILESTONE_ID
+PATCH {{baseUrl}}/research/projects/{{projectId}}/milestones/{{milestoneId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "isDone": true
+}
+
+### ─── Add a collaborator ────────────────────────────
+POST {{baseUrl}}/research/projects/{{projectId}}/members
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userId": "REPLACE_WITH_USER_ID",
+  "role": "collaborator"
+}
+
+### ─── Link an output (paper) ───────────────────────
+POST {{baseUrl}}/research/projects/{{projectId}}/outputs
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "outputType": "paper",
+  "title": "Preliminary findings on ML crop prediction",
+  "externalUrl": "https://doi.org/10.xxxx/xxxxx",
+  "publishedAt": "2026-12-01"
+}
+
+### ─── Get AI intelligence for project ───────────────
+GET {{baseUrl}}/research/projects/{{projectId}}/intelligence
+Authorization: Bearer {{token}}
+
+### ══════════════════════════════════════════════════════
+###  INTELLIGENCE — Knowledge Graph, Gaps, Leaderboard,
+###  Researchers & Recommendations
+###  Replace REPLACE_WITH_UNIVERSITY_ID with a real UUID
+### ══════════════════════════════════════════════════════
+
+@universityId = REPLACE_WITH_UNIVERSITY_ID
+@gapId        = REPLACE_WITH_GAP_ID
+@recId        = REPLACE_WITH_RECOMMENDATION_ID
+
+### ── KNOWLEDGE GRAPH ────────────────────────────────
+
+### ─── National research map (public) ───────────────
+GET {{baseUrl}}/intelligence/graph
+Authorization: Bearer {{token}}
+
+### ─── Research map filtered by area ────────────────
+GET {{baseUrl}}/intelligence/graph?researchArea=agriculture&limit=50
+Authorization: Bearer {{token}}
+
+### ─── Research map scoped to one university ─────────
+GET {{baseUrl}}/intelligence/graph?universityId={{universityId}}
+Authorization: Bearer {{token}}
+
+### ── TOP RESEARCHERS ─────────────────────────────────
+
+### ─── Top researchers — all (public) ───────────────
+GET {{baseUrl}}/intelligence/top-researchers?limit=10
+
+### ─── Top researchers — filter by topic ────────────
+GET {{baseUrl}}/intelligence/top-researchers?tagName=machine+learning&limit=10
+
+### ─── Top researchers — scoped to university ───────
+GET {{baseUrl}}/intelligence/top-researchers?universityId={{universityId}}&limit=10
+
+### ── COLLABORATORS ───────────────────────────────────
+
+### ─── Collaborator suggestions (authenticated) ──────
+GET {{baseUrl}}/intelligence/collaborators?limit=8
+Authorization: Bearer {{token}}
+
+### ── RESEARCH GAPS ───────────────────────────────────
+
+### ─── List all gaps ─────────────────────────────────
+GET {{baseUrl}}/intelligence/gaps
+Authorization: Bearer {{token}}
+
+### ─── List unaddressed gaps only ────────────────────
+GET {{baseUrl}}/intelligence/gaps?status=unaddressed&page=1&limit=20
+Authorization: Bearer {{token}}
+
+### ─── List auto-detected gaps ───────────────────────
+GET {{baseUrl}}/intelligence/gaps?autoDetected=true
+Authorization: Bearer {{token}}
+
+### ─── Submit a gap manually ─────────────────────────
+POST {{baseUrl}}/intelligence/gaps
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "description": "There is insufficient peer-reviewed research on indigenous seed preservation techniques in the savannah belt of Nigeria.",
+  "researchArea": "agriculture",
+  "priorityScore": 8
+}
+
+### ─── Auto-detect gaps (admin only) ─────────────────
+POST {{baseUrl}}/intelligence/gaps/detect
+Authorization: Bearer {{token}}
+
+### ─── Auto-detect scoped to university (admin only) ─
+POST {{baseUrl}}/intelligence/gaps/detect?universityId={{universityId}}
+Authorization: Bearer {{token}}
+
+### ─── Update gap status (admin only) ────────────────
+### status: unaddressed | being_researched | solved | dismissed
+PATCH {{baseUrl}}/intelligence/gaps/{{gapId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "being_researched"
+}
+
+### ── LEADERBOARD ──────────────────────────────────────
+
+### ─── Quarterly leaderboard (default, public) ───────
+GET {{baseUrl}}/intelligence/leaderboard
+
+### ─── Monthly leaderboard ───────────────────────────
+GET {{baseUrl}}/intelligence/leaderboard?period=monthly
+
+### ─── Annual leaderboard ────────────────────────────
+GET {{baseUrl}}/intelligence/leaderboard?period=annual
+
+### ─── Recompute rankings (admin only) ───────────────
+POST {{baseUrl}}/intelligence/leaderboard/compute
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "period": "quarterly"
+}
+
+### ── STRATEGIC RECOMMENDATIONS ───────────────────────
+
+### ─── List recommendations (management/admin only) ──
+GET {{baseUrl}}/intelligence/recommendations
+Authorization: Bearer {{token}}
+
+### ─── Filter by status ──────────────────────────────
+### status: pending_review | accepted | rejected | implemented | dismissed
+GET {{baseUrl}}/intelligence/recommendations?status=pending_review
+Authorization: Bearer {{token}}
+
+### ─── Generate recommendations for a university ─────
+### Runs 4 rules: citation rate, gaps, upload activity, mentorship
+POST {{baseUrl}}/intelligence/recommendations/generate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "universityId": "{{universityId}}"
+}
+
+### ─── Update recommendation status ──────────────────
+### status: accepted | rejected | implemented | dismissed
+PATCH {{baseUrl}}/intelligence/recommendations/{{recId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "accepted"
+}
+
+### ══════════════════════════════════════════════════════
+###  PLAGIARISM & SIMILARITY DETECTION
+###  Replace REPLACE_WITH_DOCUMENT_ID with a real UUID
+### ══════════════════════════════════════════════════════
+
+@documentId = REPLACE_WITH_DOCUMENT_ID
+
+### ─── Run similarity check (owner or staff/admin) ──
+### Returns score, status, top matches, methods used.
+### Returns 202 if a check is already running.
+POST {{baseUrl}}/plagiarism/{{documentId}}/check
+Authorization: Bearer {{token}}
+
+### ─── Get stored plagiarism report ─────────────────
+### Returns the most recent report, or null if unchecked.
+GET {{baseUrl}}/plagiarism/{{documentId}}/report
+Authorization: Bearer {{token}}
+
+### ─── List flagged documents (admin/staff/lecturer) ─
+### Default: plagiarism_score >= 0.30
+GET {{baseUrl}}/plagiarism
+Authorization: Bearer {{token}}
+
+### ─── List flagged — custom threshold ───────────────
+GET {{baseUrl}}/plagiarism?minScore=0.5&page=1&limit=10
+Authorization: Bearer {{token}}
+
+### ─── Upload a duplicate document (triggers auto-check) ─
+### Upload the same title/abstract as an existing doc.
+### After upload the background pipeline will:
+###   1. stamp SHA-256 hash
+###   2. generate OpenAI embedding (if key set)
+###   3. run async similarity check
+POST {{baseUrl}}/documents
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title":      "Introduction to Machine Learning",
+  "abstract":   "A brief overview of ML concepts and applications.",
+  "docType":    "research_paper",
+  "visibility": "public"
+}
+
+### ─── Check the duplicate document ──────────────────
+### Wait a second after the upload above, then run this.
+### Expected: is_duplicate=true, status="duplicate", score≈1.0
+POST {{baseUrl}}/plagiarism/{{documentId}}/check
+Authorization: Bearer {{token}}

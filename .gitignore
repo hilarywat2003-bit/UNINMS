@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Environment files (contains secrets)
+.env
+.env.local
+.env*.local
+.env.production
+.env.development
+
+# Build outputs
+.next/
+dist/
+out/
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Uploads (user content, not code)
+uninms-backend/uploads/
+
+# Misc
+coverage/
+.nyc_output/
+capture_screens.js
+uninms-screens/
