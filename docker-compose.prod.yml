@@ -1,0 +1,125 @@
+version: '3.9'
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  UniNMS PRODUCTION
+#
+#  Prerequisites:
+#    1. Copy uninms-backend/.env.example → uninms-backend/.env and fill all vars
+#    2. Set strong passwords — do NOT use defaults from dev
+#    3. Build images:  docker compose -f docker-compose.prod.yml build
+#    4. Start:         docker compose -f docker-compose.prod.yml up -d
+#    5. Run migrations (first boot):
+#         docker compose -f docker-compose.prod.yml exec api npm run migrate
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── PostgreSQL 16 + pgvector ────────────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: uninms_pg_prod
+    restart: always
+    environment:
+      POSTGRES_DB:       ${DB_NAME:-uninms}
+      POSTGRES_USER:     ${DB_USER:-uninms_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-uninms_user} -d ${DB_NAME:-uninms}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - uninms_net
+
+  # ── Redis 7 ─────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: uninms_redis_prod
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - uninms_net
+
+  # ── Backend API ──────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./uninms-backend
+      dockerfile: Dockerfile
+    container_name: uninms_api_prod
+    restart: always
+    env_file: ./uninms-backend/.env
+    environment:
+      NODE_ENV: production
+      PORT:     3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_healthy }
+    networks:
+      - uninms_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # ── Next.js Web App ──────────────────────────────────────────────────────────
+  web:
+    build:
+      context: ./uninms-web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://api:3000/api/v1}
+    container_name: uninms_web_prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT:     4000
+    ports:
+      - "4000:4000"
+    depends_on:
+      - api
+    networks:
+      - uninms_net
+
+  # ── OAI-PMH Harvester (runs every 24h) ─────────────────────────────────────
+  harvester:
+    build:
+      context: ./uninms-harvest
+      dockerfile: Dockerfile
+    container_name: uninms_harvester_prod
+    restart: always
+    environment:
+      DB_HOST:                 postgres
+      DB_PORT:                 5432
+      DB_NAME:                 ${DB_NAME:-uninms}
+      DB_USER:                 ${DB_USER:-uninms_user}
+      DB_PASSWORD:             ${DB_PASSWORD}
+      HARVEST_INTERVAL_HOURS:  24
+      HARVEST_SOURCE:          all
+    depends_on:
+      postgres: { condition: service_healthy }
+    networks:
+      - uninms_net
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads:
+
+networks:
+  uninms_net:
+    driver: bridge

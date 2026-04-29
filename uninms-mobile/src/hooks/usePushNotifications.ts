@@ -63,9 +63,11 @@ export function usePushNotifications() {
       }
       if (finalStatus === 'granted') {
         try {
-          await Notifications.getExpoPushTokenAsync({});
+          const { data: token } = await Notifications.getExpoPushTokenAsync({});
+          const { notificationsApi } = await import('../lib/api');
+          await notificationsApi.registerPushToken(token, 'expo');
         } catch {
-          // token fetch may fail in simulators — not fatal
+          // token fetch / registration may fail in simulators — not fatal
         }
       }
 

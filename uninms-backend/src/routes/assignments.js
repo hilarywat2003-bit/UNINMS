@@ -31,6 +31,55 @@ async function isEnrolled(courseId, userId) {
   return !!row;
 }
 
+// ── GET /assignments  — all assignments for the current user across all courses ─
+router.get('/assignments', authenticate, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const roles  = req.user.roles ?? [req.user.role];
+    const isStaff = roles.some(r => ['lecturer','admin','super_admin','management'].includes(r));
+
+    let rows;
+    if (isStaff) {
+      // Lecturers / admins: assignments on courses they manage
+      ({ rows } = await pool.query(
+        `SELECT a.*,
+                c.title AS course_title, c.course_code,
+                u.full_name AS created_by_name,
+                (SELECT COUNT(*) FROM submissions s WHERE s.assignment_id = a.id AND s.deleted_at IS NULL) AS submission_count
+         FROM assignments a
+         JOIN courses c ON c.id = a.course_id AND c.deleted_at IS NULL
+         JOIN users u ON u.id = a.created_by
+         WHERE a.deleted_at IS NULL
+           AND (c.lecturer_id = $1 OR $2 = true)
+         ORDER BY a.due_date ASC NULLS LAST, a.created_at DESC
+         LIMIT 200`,
+        [userId, roles.some(r => ['admin','super_admin','management'].includes(r))]
+      ));
+    } else {
+      // Students: assignments from enrolled courses
+      ({ rows } = await pool.query(
+        `SELECT a.*,
+                c.title AS course_title, c.course_code,
+                u.full_name AS created_by_name,
+                sub.id    AS my_submission_id,
+                sub.status AS my_status,
+                sub.marks  AS my_marks,
+                sub.grade  AS my_grade
+         FROM assignments a
+         JOIN courses c ON c.id = a.course_id AND c.deleted_at IS NULL
+         JOIN course_enrollments ce ON ce.course_id = c.id AND ce.student_id = $1
+         JOIN users u ON u.id = a.created_by
+         LEFT JOIN submissions sub ON sub.assignment_id = a.id AND sub.student_id = $1 AND sub.deleted_at IS NULL
+         WHERE a.deleted_at IS NULL
+         ORDER BY a.due_date ASC NULLS LAST, a.created_at DESC`,
+        [userId]
+      ));
+    }
+
+    res.json({ success: true, data: { assignments: rows, total: rows.length } });
+  } catch (err) { next(err); }
+});
+
 // ── GET /courses/:courseId/assignments ────────────────────────────────────────
 router.get('/courses/:courseId/assignments', authenticate, async (req, res, next) => {
   try {

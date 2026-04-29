@@ -6,7 +6,8 @@
   "scripts": {
     "harvest":        "node harvest.js --source all",
     "harvest:kashere":"node harvest.js --source kashere_jose",
-    "verify":         "node verify.js"
+    "verify":         "node verify.js",
+    "cron":           "node cron.js"
   },
   "dependencies": {
     "node-fetch": "^3.3.2",

@@ -78,9 +78,13 @@ export const analyticsApi = {
 };
 
 export const notificationsApi = {
-  list:     (p?: object) => get('/notifications', p),
-  markRead: (id: string) => patch(`/notifications/${id}/read`),
-  readAll:  () => post('/notifications/read-all'),
+  list:              (p?: object) => get('/notifications', p),
+  markRead:          (id: string) => patch(`/notifications/${id}/read`),
+  readAll:           () => post('/notifications/read-all'),
+  registerPushToken: (token: string, platform = 'expo') =>
+    post('/notifications/push-token', { token, platform }),
+  removePushToken:   (token: string) =>
+    api.delete('/notifications/push-token', { data: { token } }).then(r => r.data),
 };
 
 export const forumsApi = {

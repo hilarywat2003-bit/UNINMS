@@ -180,6 +180,7 @@ export const platformApi = {
 };
 
 export const assignmentsApi = {
+  all:        (p?: object)                              => get('/assignments', p),
   list:       (courseId: string)                        => get(`/courses/${courseId}/assignments`),
   create:     (courseId: string, d: object)             => post(`/courses/${courseId}/assignments`, d),
   update:     (id: string, d: object)                   => patch(`/assignments/${id}`, d),

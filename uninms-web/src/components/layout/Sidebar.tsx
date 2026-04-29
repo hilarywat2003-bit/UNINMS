@@ -22,10 +22,11 @@ interface NavItem {
 // ── Role-specific nav definitions ─────────────────────────────────────────────
 
 const studentNav: NavItem[] = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/profile',   icon: User,            label: 'My profile' },
-  { href: '/courses',   icon: BookMarked,      label: 'My courses', section: 'Learning' },
-  { href: '/repository',icon: BookOpen,        label: 'Repository & Search' },
+  { href: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/profile',     icon: User,            label: 'My profile' },
+  { href: '/courses',     icon: BookMarked,      label: 'My courses',   section: 'Learning' },
+  { href: '/assignments', icon: ClipboardList,   label: 'Assignments' },
+  { href: '/repository',  icon: BookOpen,        label: 'Repository & Search' },
   { href: '/journals',  icon: BookOpen,        label: 'Journals',   section: 'Research' },
   { href: '/journals/my/submissions', icon: FileText, label: 'My submissions' },
   { href: '/forums',    icon: MessageSquare,   label: 'Forums',     section: 'Community' },
@@ -33,9 +34,10 @@ const studentNav: NavItem[] = [
 ];
 
 const lecturerNav: NavItem[] = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/profile',   icon: User,            label: 'My profile' },
-  { href: '/courses',   icon: BookMarked,      label: 'My courses', section: 'Teaching' },
+  { href: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/profile',     icon: User,            label: 'My profile' },
+  { href: '/courses',     icon: BookMarked,      label: 'My courses',   section: 'Teaching' },
+  { href: '/assignments', icon: ClipboardList,   label: 'Assignments' },
   { href: '/repository',icon: BookOpen,        label: 'Repository' },
   { href: '/search',    icon: Search,          label: 'Search' },
   { href: '/research',  icon: FileText,        label: 'Research pipeline', section: 'Research' },
