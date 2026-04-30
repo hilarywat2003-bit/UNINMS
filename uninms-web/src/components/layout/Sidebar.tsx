@@ -71,6 +71,7 @@ const adminNav: NavItem[] = [
   { href: '/courses',                icon: BookMarked,      label: 'Courses',            section: 'Academic' },
   { href: '/repository',             icon: BookOpen,        label: 'Repository' },
   { href: '/admin/journals',         icon: BookOpen,        label: 'Manage journals',    section: 'Journals' },
+  { href: '/admin/journals/migrate', icon: Globe,           label: 'Migrate a journal' },
   { href: '/journals',               icon: BookOpen,        label: 'Browse journals' },
   { href: '/reviewer',               icon: Star,            label: 'Review assignments' },
   { href: '/research',               icon: FileText,        label: 'Research pipeline',  section: 'Research' },
@@ -91,7 +92,8 @@ const superAdminNav: NavItem[] = [
   { href: '/superadmin/audit-log',       icon: ClipboardList,   label: 'Audit log' },
   { href: '/superadmin/settings',        icon: Settings,        label: 'Platform settings' },
   { href: '/superadmin/tetfund',         icon: TrendingUp,      label: 'TETFund reports',   section: 'Reporting' },
-  { href: '/superadmin/journals',        icon: BookOpen,        label: 'Journal billing',   section: 'Journals' },
+  { href: '/superadmin/journals',            icon: BookOpen,        label: 'Journal billing',    section: 'Journals' },
+  { href: '/superadmin/journals/migrations', icon: Globe,           label: 'Journal migrations' },
 ];
 
 const communityNav: NavItem[] = [

@@ -254,6 +254,16 @@ export const communityApi = {
   exportTokens:    (assetId: string)               => `${BASE_URL}/community/assets/${assetId}/tokens/export`,
 };
 
+export const journalMigrationApi = {
+  submit:   (d: object)              => post('/journal-migration', d),
+  list:     ()                       => get('/journal-migration'),
+  get:      (id: string)             => get(`/journal-migration/${id}`),
+  probe:    (id: string)             => post(`/journal-migration/${id}/probe`),
+  import:   (id: string)             => post(`/journal-migration/${id}/import`),
+  reject:   (id: string, note?: string) => post(`/journal-migration/${id}/reject`, { note }),
+  articles: (id: string, p?: object) => get(`/journal-migration/${id}/articles`, p),
+};
+
 export const journalBillingApi = {
   plans:    ()                          => get('/journal-billing/plans'),
   updatePlan:(id: string, d: object)    => api.patch(`/journal-billing/plans/${id}`, d).then(r => r.data),

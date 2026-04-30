@@ -70,7 +70,8 @@ app.use(`${API}/admin`,         adminRouter);          // Admin2: university IT
 app.use(`${API}/platform`,      require('./routes/platform')); // Admin1: UniNMS operator
 app.use(`${API}/plagiarism`,    plagiarismRouter);
 app.use(`${API}/billing`,          require('./routes/billing'));
-app.use(`${API}/journal-billing`,  require('./routes/journal-billing'));
+app.use(`${API}/journal-billing`,    require('./routes/journal-billing'));
+app.use(`${API}/journal-migration`,  require('./routes/journal-migration'));
 app.use(`${API}/journals`,         require('./routes/journals'));
 app.use(`${API}/tetfund`,       require('./routes/tetfund'));
 app.use(`${API}/community`,     require('./routes/community'));
