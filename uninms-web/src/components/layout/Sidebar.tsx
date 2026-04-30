@@ -91,6 +91,7 @@ const superAdminNav: NavItem[] = [
   { href: '/superadmin/audit-log',       icon: ClipboardList,   label: 'Audit log' },
   { href: '/superadmin/settings',        icon: Settings,        label: 'Platform settings' },
   { href: '/superadmin/tetfund',         icon: TrendingUp,      label: 'TETFund reports',   section: 'Reporting' },
+  { href: '/superadmin/journals',        icon: BookOpen,        label: 'Journal billing',   section: 'Journals' },
 ];
 
 const communityNav: NavItem[] = [

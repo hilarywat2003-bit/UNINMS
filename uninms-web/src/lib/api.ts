@@ -254,6 +254,20 @@ export const communityApi = {
   exportTokens:    (assetId: string)               => `${BASE_URL}/community/assets/${assetId}/tokens/export`,
 };
 
+export const journalBillingApi = {
+  plans:    ()                          => get('/journal-billing/plans'),
+  updatePlan:(id: string, d: object)    => api.patch(`/journal-billing/plans/${id}`, d).then(r => r.data),
+  createJournal:(d: object)             => post('/journal-billing/journals', d),
+  verify:   (ref: string)              => get(`/journal-billing/verify/${ref}`),
+  myJournals: ()                        => get('/journal-billing/my'),
+  pending:  ()                          => get('/journal-billing/pending'),
+  all:      (p?: object)               => get('/journal-billing/all', p),
+  approve:  (journalId: string, d?: object) => post(`/journal-billing/${journalId}/approve`, d ?? {}),
+  reject:   (journalId: string, reason: string) => post(`/journal-billing/${journalId}/reject`, { reason }),
+  suspend:  (journalId: string, reason?: string) => post(`/journal-billing/${journalId}/suspend`, { reason }),
+  stats:    ()                          => get('/journal-billing/stats'),
+};
+
 export const billingApi = {
   plans:      ()                      => get('/billing/plans'),
   current:    ()                      => get('/billing/current'),
