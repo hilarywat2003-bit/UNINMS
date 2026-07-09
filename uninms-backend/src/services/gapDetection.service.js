@@ -99,9 +99,12 @@ async function submitGap({ userId, universityId, description, researchArea, prio
  * @returns {Array} newly inserted gap rows
  */
 async function detectGaps(universityId = null) {
-  const uniFilter = universityId
-    ? `AND fac.university_id = '${universityId}'`
-    : '';
+  const params = [];
+  let   uniFilter = '';
+  if (universityId) {
+    params.push(universityId);
+    uniFilter = `AND fac.university_id = $${params.length}`;
+  }
 
   // Low-coverage tags
   const { rows: lowCoverage } = await pool.query(
@@ -116,11 +119,12 @@ async function detectGaps(universityId = null) {
      LEFT JOIN users u          ON u.id = d.uploader_id AND u.deleted_at IS NULL
      LEFT JOIN departments dep  ON dep.id = u.department_id
      LEFT JOIN faculties fac    ON fac.id = dep.faculty_id
-       ${uniFilter ? uniFilter.replace('AND ', 'AND ') : ''}
+       ${uniFilter}
      GROUP BY t.id, t.name
      HAVING COUNT(DISTINCT dt.document_id) FILTER (
        WHERE d.published_at > NOW() - INTERVAL '36 months'
-     ) < 3`
+     ) < 3`,
+    params
   );
 
   const inserted = [];
