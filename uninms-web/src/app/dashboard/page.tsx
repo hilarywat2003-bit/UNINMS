@@ -249,8 +249,8 @@ function LecturerDashboard({ firstName }: { firstName: string }) {
   });
   const { data: meData } = useQuery({ queryKey: ['analytics', 'me'], queryFn: () => analyticsApi.me() });
   const { data: gapsData, isLoading: gapsLoading } = useQuery({
-    queryKey: ['intelligence', 'gaps', 'unaddressed'],
-    queryFn:  () => intelligenceApi.gaps({ status: 'unaddressed', limit: 1 }),
+    queryKey: ['intelligence', 'gaps', 'recommended', 'dashboard'],
+    queryFn:  () => intelligenceApi.recommendedGaps(5),
   });
   const { data: collabData, isLoading: collabLoading } = useQuery({
     queryKey: ['intelligence', 'collaborators', 'dashboard'],
@@ -262,7 +262,9 @@ function LecturerDashboard({ firstName }: { firstName: string }) {
   const me      = meData?.data as any;
   const totalDocs  = me?.documents?.reduce((a: number, d: any) => a + parseInt(d.count ?? 0), 0) ?? 0;
   const totalViews = me?.documents?.reduce((a: number, d: any) => a + parseInt(d.total_views ?? 0), 0) ?? 0;
-  const gapsTotal    = (gapsData?.data as any)?.total ?? 0;
+  const recommendedGaps = (gapsData?.data as any) ?? [];
+  const gapsTotal    = recommendedGaps.length;
+  const topGap       = recommendedGaps[0];
   const collabCount  = ((collabData?.data as any) ?? []).length;
   const insightsLoading = gapsLoading || collabLoading;
 
@@ -372,15 +374,17 @@ function LecturerDashboard({ firstName }: { firstName: string }) {
               <div className="space-y-2">{[...Array(2)].map((_, i) => <div key={i} className="h-10 skeleton" />)}</div>
             ) : (
               <div className="space-y-3">
-                <Link href="/intelligence" className="flex items-center gap-3 group">
+                <Link href="/intelligence?tab=gaps" className="flex items-center gap-3 group">
                   <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
                     <Lightbulb size={13} className="text-red-600" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-stone-800 group-hover:text-primary-700">
-                      {gapsTotal} unaddressed gap{gapsTotal !== 1 ? 's' : ''}
+                      {gapsTotal} gap{gapsTotal !== 1 ? 's' : ''} match your interests
                     </p>
-                    <p className="text-xs text-stone-400">Detected from research activity</p>
+                    <p className="text-xs text-stone-400 truncate">
+                      {topGap?.research_area ?? 'Based on your published research areas'}
+                    </p>
                   </div>
                 </Link>
                 <Link href="/intelligence?tab=researchers" className="flex items-center gap-3 group">

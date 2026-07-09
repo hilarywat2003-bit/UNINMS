@@ -205,6 +205,11 @@ function GapsTab({ isAdmin }: { isAdmin: boolean }) {
     queryFn:  () => intelligenceApi.gaps(statusFilter ? { status: statusFilter, limit: 50 } : { limit: 50 }),
   });
 
+  const { data: recommendedData, isLoading: recommendedLoading } = useQuery({
+    queryKey: ['intelligence', 'gaps', 'recommended'],
+    queryFn:  () => intelligenceApi.recommendedGaps(5),
+  });
+
   const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<{
     description: string; researchArea: string; priorityScore: number;
   }>();
@@ -237,6 +242,7 @@ function GapsTab({ isAdmin }: { isAdmin: boolean }) {
   });
 
   const gaps = (data?.data as any)?.gaps ?? [];
+  const recommendedGaps: any[] = (recommendedData?.data as any) ?? [];
 
   const STATUS_FILTERS = [
     { value: '',                label: 'All' },
@@ -248,6 +254,44 @@ function GapsTab({ isAdmin }: { isAdmin: boolean }) {
 
   return (
     <div className="space-y-5">
+      {(recommendedLoading || recommendedGaps.length > 0) && (
+        <div className="card p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <Lightbulb size={15} className="text-amber-500" />
+            <h4 className="font-display font-semibold text-stone-900 text-sm">Recommended for you</h4>
+            <span className="text-[11px] text-stone-400">based on your published research areas</span>
+          </div>
+          {recommendedLoading ? (
+            <Skeleton rows={2} />
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {recommendedGaps.map((gap: any) => (
+                <div key={gap.id} className="border border-stone-200 rounded-xl p-3 space-y-1.5">
+                  <div className="flex flex-wrap gap-1.5">
+                    {gap.research_area && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200">
+                        {gap.research_area}
+                      </span>
+                    )}
+                    {gap.matchType === 'personalized' && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
+                        matches your interests
+                      </span>
+                    )}
+                    {gap.semantic_score !== null && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                        {Math.round(gap.semantic_score * 100)}% similar
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-stone-700 leading-relaxed line-clamp-3">{gap.gap_description}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex gap-1 flex-wrap">
           {STATUS_FILTERS.map(f => (

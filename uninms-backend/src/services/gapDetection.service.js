@@ -10,7 +10,9 @@
  *   - updateGapStatus — admin status transitions
  */
 
-const { pool } = require('../config/database');
+const { pool }              = require('../config/database');
+const { generateEmbedding } = require('./embeddings');
+const logger                = require('../utils/logger');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // listGaps
@@ -79,6 +81,7 @@ async function submitGap({ userId, universityId, description, researchArea, prio
       universityId  || null,
     ]
   );
+  embedGap(gap.id, `${researchArea || ''} ${description}`.trim());
   return gap;
 }
 
@@ -158,10 +161,93 @@ async function detectGaps(universityId = null) {
         universityId || null,
       ]
     );
+    embedGap(gap.id, `${row.name} ${gap.gap_description}`);
     inserted.push(gap);
   }
 
   return inserted;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// embedGap  (fire-and-forget — best effort, never throws)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function embedGap(gapId, text) {
+  setImmediate(async () => {
+    try {
+      const vector = await generateEmbedding(text);
+      if (!vector) return;
+      await pool.query(
+        `UPDATE research_gaps SET embedding = $1::vector WHERE id = $2`,
+        [JSON.stringify(vector), gapId]
+      );
+    } catch (err) {
+      logger.warn(`[gapDetection] embedding failed for gap ${gapId}: ${err.message}`);
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// getRecommendedGaps
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Rank unaddressed gaps for a specific researcher by relevance to their
+ * interests, blending two signals:
+ *  - tag match   — gap's research_area matches a tag the user has published under
+ *  - semantic    — cosine similarity between the gap's embedding and the
+ *                  average embedding of the user's own published documents
+ *                  (only available once OPENAI_API_KEY is configured and
+ *                  embeddings exist — degrades gracefully otherwise)
+ *
+ * @param {string} userId
+ * @param {number} limit
+ */
+async function getRecommendedGaps(userId, limit = 10) {
+  const { rows } = await pool.query(
+    `WITH interest AS (
+       SELECT DISTINCT t.name
+       FROM documents d
+       JOIN document_tags dt ON dt.document_id = d.id
+       JOIN tags t           ON t.id = dt.tag_id
+       WHERE d.uploader_id = $1 AND d.deleted_at IS NULL AND d.is_published = true
+     ),
+     user_vec AS (
+       SELECT AVG(d.embedding) AS v
+       FROM documents d
+       WHERE d.uploader_id = $1 AND d.deleted_at IS NULL AND d.embedding IS NOT NULL
+     ),
+     scored AS (
+       SELECT g.id, g.gap_description, g.research_area, g.priority_score,
+              g.auto_detected, g.status, g.university_id,
+              uni.name AS university_name, g.created_at,
+              EXISTS (
+                SELECT 1 FROM interest i WHERE g.research_area ILIKE i.name
+              ) AS tag_match,
+              CASE WHEN g.embedding IS NOT NULL AND (SELECT v FROM user_vec) IS NOT NULL
+                   THEN ROUND((1 - (g.embedding <=> (SELECT v FROM user_vec)))::numeric, 4)
+                   ELSE NULL END AS semantic_score
+       FROM research_gaps g
+       LEFT JOIN universities uni ON uni.id = g.university_id
+       WHERE g.deleted_at IS NULL AND g.status = 'unaddressed'
+     )
+     SELECT *,
+       (COALESCE(semantic_score, 0) * 0.5)
+       + (CASE WHEN tag_match THEN 0.3 ELSE 0 END)
+       + (priority_score / 10.0 * 0.2) AS match_score
+     FROM scored
+     ORDER BY match_score DESC, priority_score DESC, created_at DESC
+     LIMIT $2`,
+    [userId, parseInt(limit)]
+  );
+
+  return rows.map(r => ({
+    ...r,
+    priority_score:  parseInt(r.priority_score),
+    semantic_score:  r.semantic_score !== null ? parseFloat(r.semantic_score) : null,
+    match_score:     parseFloat(parseFloat(r.match_score).toFixed(4)),
+    matchType:       r.tag_match || r.semantic_score !== null ? 'personalized' : 'general',
+  }));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -179,4 +265,4 @@ async function updateGapStatus(id, status) {
   return gap ?? null;
 }
 
-module.exports = { listGaps, submitGap, detectGaps, updateGapStatus };
+module.exports = { listGaps, submitGap, detectGaps, updateGapStatus, getRecommendedGaps };

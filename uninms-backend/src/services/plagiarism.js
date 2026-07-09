@@ -26,6 +26,7 @@ const crypto   = require('crypto');
 const { pool } = require('../config/database');
 const logger   = require('../utils/logger');
 const { checkExternalSources } = require('./externalSources');
+const { generateEmbedding }    = require('./embeddings');
 
 const SIMILARITY_THRESHOLD = 0.30;   // >= 30 % → flagged
 const DUPLICATE_THRESHOLD  = 0.97;   // >= 97 % → hard duplicate
@@ -150,25 +151,14 @@ async function stampHash(documentId, title, abstract) {
 // ── Embedding helper ─────────────────────────────────────────────────────────
 
 async function generateAndStoreEmbedding(documentId, text) {
-  if (!process.env.OPENAI_API_KEY) return null;
-  try {
-    const { default: OpenAI } = await import('openai');
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const response = await openai.embeddings.create({
-      model: process.env.EMBEDDING_MODEL || 'text-embedding-3-small',
-      input: text.slice(0, 8000),
-    });
-    const vector = response.data[0].embedding;
-    await pool.query(
-      `UPDATE documents SET embedding = $1::vector WHERE id = $2`,
-      [JSON.stringify(vector), documentId]
-    );
-    logger.info(`[plagiarism] embedding stored for ${documentId}`);
-    return vector;
-  } catch (err) {
-    logger.warn(`[plagiarism] embedding failed for ${documentId}: ${err.message}`);
-    return null;
-  }
+  const vector = await generateEmbedding(text);
+  if (!vector) return null;
+  await pool.query(
+    `UPDATE documents SET embedding = $1::vector WHERE id = $2`,
+    [JSON.stringify(vector), documentId]
+  );
+  logger.info(`[plagiarism] embedding stored for ${documentId}`);
+  return vector;
 }
 
 // ── Core check ────────────────────────────────────────────────────────────────
@@ -437,24 +427,6 @@ async function _persistReport({
   );
 }
 
-// ── Raw embedding helper ──────────────────────────────────────────────────────
-
-async function _generateEmbeddingRaw(text) {
-  if (!process.env.OPENAI_API_KEY) return null;
-  try {
-    const { default: OpenAI } = await import('openai');
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const response = await openai.embeddings.create({
-      model: process.env.EMBEDDING_MODEL || 'text-embedding-3-small',
-      input: text.slice(0, 8000),
-    });
-    return response.data[0].embedding;
-  } catch (err) {
-    logger.warn(`[plagiarism] raw embedding failed: ${err.message}`);
-    return null;
-  }
-}
-
 // ── Ad-hoc text check (submissions) ──────────────────────────────────────────
 
 async function checkSubmissionText(text) {
@@ -467,7 +439,7 @@ async function checkSubmissionText(text) {
   }
 
   let candidates = [];
-  const embedding = await _generateEmbeddingRaw(text.slice(0, 8000));
+  const embedding = await generateEmbedding(text.slice(0, 8000));
 
   if (embedding) {
     methodsUsed.push('semantic_vector');

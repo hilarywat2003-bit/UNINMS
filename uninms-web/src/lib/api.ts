@@ -201,6 +201,7 @@ export const plagiarismApi = {
 export const intelligenceApi = {
   // Gaps
   gaps:            (p?: object)                      => get('/intelligence/gaps', p),
+  recommendedGaps: (limit = 10)                       => get('/intelligence/gaps/recommended', { limit }),
   submitGap:       (d: unknown)                      => post('/intelligence/gaps', d),
   detectGaps:      (universityId?: string)           => post(`/intelligence/gaps/detect${universityId ? `?universityId=${universityId}` : ''}`),
   updateGap:       (id: string, status: string)      => patch(`/intelligence/gaps/${id}`, { status }),

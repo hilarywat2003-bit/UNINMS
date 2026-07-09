@@ -101,6 +101,22 @@ router.get(
   }
 );
 
+// ── GET /intelligence/gaps/recommended — gaps matching the caller's interests ──
+router.get(
+  '/gaps/recommended',
+  authenticate,
+  apiLimiter,
+  [qv('limit').optional().isInt({ min: 1, max: 20 }).toInt()],
+  validate,
+  async (req, res, next) => {
+    try {
+      const { limit = 10 } = req.query;
+      const gaps = await gapService.getRecommendedGaps(req.user.id, limit);
+      res.json({ success: true, data: gaps });
+    } catch (err) { next(err); }
+  }
+);
+
 // ── POST /intelligence/gaps — submit manual gap ───────────────────────────────
 router.post(
   '/gaps',
