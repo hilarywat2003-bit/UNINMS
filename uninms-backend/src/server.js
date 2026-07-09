@@ -83,7 +83,7 @@ app.use(`${API}/handover`,      require('./routes/handover'));
 app.use(`${API}/claims`,        require('./routes/claims'));
 app.use(`${API}/groups`,        require('./routes/groups'));
 app.use(`${API}/research`,      require('./routes/research'));
-app.use(`${API}/national`,      placeholder('National'));
+app.use(`${API}/national`,      require('./routes/national'));
 app.use(`${API}/courses`,       require('./routes/courses'));
 app.use(`${API}`,               require('./routes/assignments'));
 

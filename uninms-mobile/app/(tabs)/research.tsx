@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput,
-  Modal, ActivityIndicator, Alert, StyleSheet, Switch, FlatList,
+  Modal, ActivityIndicator, StyleSheet, Switch, FlatList,
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '../../src/theme/ThemeContext';
+import { useToast } from '../../src/components/Toast';
 import { researchApi, usersApi } from '../../src/lib/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -58,6 +59,7 @@ function Section({ title, onAdd, children, colors }: any) {
 // ─── Create Project Modal ─────────────────────────────────────────────────────
 function CreateProjectModal({ visible, onClose, colors }: any) {
   const qc = useQueryClient();
+  const toast = useToast();
   const [title, setTitle] = useState('');
   const [abstract, setAbstract] = useState('');
   const [type, setType] = useState<ResearchType>('applied');
@@ -89,7 +91,7 @@ function CreateProjectModal({ visible, onClose, colors }: any) {
       setFunding(''); setAmount(''); setStartDate(''); setEndDate('');
       setKeywords(''); setIsPublic(true);
     },
-    onError: (e: any) => Alert.alert('Error', e?.response?.data?.message ?? 'Failed to create project'),
+    onError: (e: any) => toast.show(e?.response?.data?.message ?? 'Failed to create project', 'error'),
   });
 
   const s = styles(colors);
@@ -165,18 +167,27 @@ function CreateProjectModal({ visible, onClose, colors }: any) {
 // ─── Add Member Modal ─────────────────────────────────────────────────────────
 function AddMemberModal({ visible, onClose, projectId, colors }: any) {
   const qc = useQueryClient();
+  const toast = useToast();
   const [search, setSearch] = useState('');
-  const [userId, setUserId] = useState('');
+  const [selected, setSelected] = useState<{ id: string; full_name: string } | null>(null);
   const [role, setRole] = useState<MemberRole>('collaborator');
 
+  const { data: searchRaw, isFetching: searching } = useQuery({
+    queryKey: ['user-search', search],
+    queryFn: () => usersApi.search(search),
+    enabled: search.trim().length >= 2 && !selected,
+    staleTime: 10_000,
+  });
+  const searchResults: any[] = (searchRaw?.data ?? searchRaw ?? []);
+
   const mut = useMutation({
-    mutationFn: () => researchApi.addMember(projectId, { userId: userId.trim(), role }),
+    mutationFn: () => researchApi.addMember(projectId, { userId: selected!.id, role }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['research-project', projectId] });
       onClose();
-      setUserId(''); setSearch(''); setRole('collaborator');
+      setSearch(''); setSelected(null); setRole('collaborator');
     },
-    onError: (e: any) => Alert.alert('Error', e?.response?.data?.message ?? 'Failed to add member'),
+    onError: (e: any) => toast.show(e?.response?.data?.message ?? 'Failed to add member', 'error'),
   });
 
   const s = styles(colors);
@@ -188,8 +199,36 @@ function AddMemberModal({ visible, onClose, projectId, colors }: any) {
             <Text style={s.modalTitle}>Add Member</Text>
             <TouchableOpacity onPress={onClose}><Text style={{ color: colors.error, fontSize: 22 }}>✕</Text></TouchableOpacity>
           </View>
-          <Text style={s.label}>User ID</Text>
-          <TextInput style={s.input} value={userId} onChangeText={setUserId} placeholder="Paste user UUID" placeholderTextColor={colors.textMuted} />
+
+          <Text style={s.label}>Search by name or email</Text>
+          {selected ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.primary + '18', borderRadius: 8, padding: 10 }}>
+              <Text style={{ flex: 1, color: colors.text, fontWeight: '600' }}>{selected.full_name}</Text>
+              <TouchableOpacity onPress={() => { setSelected(null); setSearch(''); }}>
+                <Text style={{ color: colors.error }}>✕</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <>
+              <TextInput
+                style={s.input} value={search} onChangeText={setSearch}
+                placeholder="Type at least 2 characters…" placeholderTextColor={colors.textMuted}
+                autoCapitalize="none"
+              />
+              {searching && <ActivityIndicator color={colors.primary} style={{ marginTop: 6 }} />}
+              {!searching && search.trim().length >= 2 && searchResults.length === 0 && (
+                <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 6 }}>No users found</Text>
+              )}
+              {searchResults.map((u: any) => (
+                <TouchableOpacity key={u.id} onPress={() => { setSelected({ id: u.id, full_name: u.full_name }); setSearch(''); }}
+                  style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.border }}>
+                  <Text style={{ color: colors.text, fontSize: 14 }}>{u.full_name}</Text>
+                  <Text style={{ color: colors.textMuted, fontSize: 12 }}>{u.email}</Text>
+                </TouchableOpacity>
+              ))}
+            </>
+          )}
+
           <Text style={s.label}>Role</Text>
           <View style={s.pillRow}>
             {MEMBER_ROLES.map(r => (
@@ -199,7 +238,11 @@ function AddMemberModal({ visible, onClose, projectId, colors }: any) {
               </TouchableOpacity>
             ))}
           </View>
-          <TouchableOpacity style={[s.btn, mut.isPending && { opacity: 0.6 }]} onPress={() => mut.mutate()} disabled={mut.isPending}>
+          <TouchableOpacity
+            style={[s.btn, (!selected || mut.isPending) && { opacity: 0.5 }]}
+            onPress={() => mut.mutate()}
+            disabled={!selected || mut.isPending}
+          >
             {mut.isPending ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>Add Member</Text>}
           </TouchableOpacity>
         </View>
@@ -211,6 +254,7 @@ function AddMemberModal({ visible, onClose, projectId, colors }: any) {
 // ─── Add Milestone Modal ──────────────────────────────────────────────────────
 function AddMilestoneModal({ visible, onClose, projectId, colors }: any) {
   const qc = useQueryClient();
+  const toast = useToast();
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [dueDate, setDueDate] = useState('');
@@ -224,7 +268,7 @@ function AddMilestoneModal({ visible, onClose, projectId, colors }: any) {
       qc.invalidateQueries({ queryKey: ['research-project', projectId] });
       onClose(); setTitle(''); setDesc(''); setDueDate('');
     },
-    onError: (e: any) => Alert.alert('Error', e?.response?.data?.message ?? 'Failed to add milestone'),
+    onError: (e: any) => toast.show(e?.response?.data?.message ?? 'Failed to add milestone', 'error'),
   });
 
   const s = styles(colors);
@@ -254,6 +298,7 @@ function AddMilestoneModal({ visible, onClose, projectId, colors }: any) {
 // ─── Add Output Modal ─────────────────────────────────────────────────────────
 function AddOutputModal({ visible, onClose, projectId, colors }: any) {
   const qc = useQueryClient();
+  const toast = useToast();
   const [outputType, setOutputType] = useState<OutputType>('paper');
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
@@ -269,7 +314,7 @@ function AddOutputModal({ visible, onClose, projectId, colors }: any) {
       qc.invalidateQueries({ queryKey: ['research-project', projectId] });
       onClose(); setOutputType('paper'); setTitle(''); setUrl(''); setPublishedAt('');
     },
-    onError: (e: any) => Alert.alert('Error', e?.response?.data?.message ?? 'Failed to add output'),
+    onError: (e: any) => toast.show(e?.response?.data?.message ?? 'Failed to add output', 'error'),
   });
 
   const s = styles(colors);
@@ -308,6 +353,7 @@ function AddOutputModal({ visible, onClose, projectId, colors }: any) {
 // ─── Submit Gap Modal ─────────────────────────────────────────────────────────
 function SubmitGapModal({ visible, onClose, colors }: any) {
   const qc = useQueryClient();
+  const toast = useToast();
   const [desc, setDesc] = useState('');
   const [area, setArea] = useState('');
   const [priority, setPriority] = useState('5');
@@ -322,7 +368,7 @@ function SubmitGapModal({ visible, onClose, colors }: any) {
       qc.invalidateQueries({ queryKey: ['research-gaps'] });
       onClose(); setDesc(''); setArea(''); setPriority('5');
     },
-    onError: (e: any) => Alert.alert('Error', e?.response?.data?.message ?? 'Failed to submit gap'),
+    onError: (e: any) => toast.show(e?.response?.data?.message ?? 'Failed to submit gap', 'error'),
   });
 
   const s = styles(colors);

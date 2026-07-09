@@ -71,6 +71,7 @@ export const usersApi = {
     }).then(r => r.data),
   profile:  (id: string) => get(`/users/${id}/profile`),
   points:   (id: string) => get(`/users/${id}/points`),
+  search:   (q: string)  => get('/users/search', { q }),
 };
 
 export const analyticsApi = {

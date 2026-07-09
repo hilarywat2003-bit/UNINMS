@@ -186,6 +186,54 @@ function StatCard({ label, value, icon: Icon, color = 'green', active, onClick }
   );
 }
 
+function QuickCreateCourseModal({ onClose }: { onClose: () => void }) {
+  const qc = useQueryClient();
+  const [form, setForm] = useState({ title: '', courseCode: '', semester: '', level: '', description: '' });
+  const mutation = useMutation({
+    mutationFn: () => coursesApi.create(form),
+    onSuccess: () => {
+      toast.success('Course created!');
+      qc.invalidateQueries({ queryKey: ['courses'] });
+      onClose();
+    },
+    onError: (err: any) => toast.error(err?.response?.data?.error?.message ?? 'Failed to create course'),
+  });
+  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+    setForm(f => ({ ...f, [k]: e.target.value }));
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-card-md w-full max-w-lg p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="font-display text-xl font-semibold text-stone-900">Create course</h3>
+          <button onClick={onClose} className="p-1 rounded-lg text-stone-400 hover:bg-stone-100"><X size={18} /></button>
+        </div>
+        <div className="space-y-3">
+          <input value={form.title} onChange={set('title')} placeholder="Course title *" className="input" autoFocus />
+          <div className="grid grid-cols-2 gap-3">
+            <input value={form.courseCode} onChange={set('courseCode')} placeholder="Course code (e.g. CSC301)" className="input" />
+            <select value={form.level} onChange={set('level')} className="input">
+              <option value="">Level</option>
+              {['100','200','300','400','500','600'].map(l => <option key={l} value={l}>{l} level</option>)}
+            </select>
+          </div>
+          <select value={form.semester} onChange={set('semester')} className="input">
+            <option value="">Semester</option>
+            <option value="First">First semester</option>
+            <option value="Second">Second semester</option>
+          </select>
+          <textarea value={form.description} onChange={set('description')} placeholder="Description (optional)" className="input" rows={3} />
+        </div>
+        <div className="flex gap-3 mt-5">
+          <button onClick={onClose} className="btn-secondary flex-1">Cancel</button>
+          <button onClick={() => mutation.mutate()} disabled={!form.title.trim() || mutation.isPending} className="btn-primary flex-1">
+            {mutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus size={14} />}
+            Create
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function LecturerDashboard({ firstName }: { firstName: string }) {
   const [showCreate, setShowCreate] = useState(false);
@@ -200,12 +248,23 @@ function LecturerDashboard({ firstName }: { firstName: string }) {
     queryFn: () => documentsApi.list({ limit: 5, sortBy: 'published_at' }),
   });
   const { data: meData } = useQuery({ queryKey: ['analytics', 'me'], queryFn: () => analyticsApi.me() });
+  const { data: gapsData, isLoading: gapsLoading } = useQuery({
+    queryKey: ['intelligence', 'gaps', 'unaddressed'],
+    queryFn:  () => intelligenceApi.gaps({ status: 'unaddressed', limit: 1 }),
+  });
+  const { data: collabData, isLoading: collabLoading } = useQuery({
+    queryKey: ['intelligence', 'collaborators', 'dashboard'],
+    queryFn:  () => intelligenceApi.collaborators(5),
+  });
 
   const courses = (coursesData?.data as any)?.courses ?? [];
   const docs    = (docsData?.data as any)?.documents ?? [];
   const me      = meData?.data as any;
   const totalDocs  = me?.documents?.reduce((a: number, d: any) => a + parseInt(d.count ?? 0), 0) ?? 0;
   const totalViews = me?.documents?.reduce((a: number, d: any) => a + parseInt(d.total_views ?? 0), 0) ?? 0;
+  const gapsTotal    = (gapsData?.data as any)?.total ?? 0;
+  const collabCount  = ((collabData?.data as any) ?? []).length;
+  const insightsLoading = gapsLoading || collabLoading;
 
   const copyId = (id: string) => {
     navigator.clipboard.writeText(id);
@@ -298,6 +357,47 @@ function LecturerDashboard({ firstName }: { firstName: string }) {
 
         {/* Right sidebar */}
         <div className="space-y-5">
+          {/* AI Insights summary */}
+          <div className="card p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Brain size={15} className="text-primary-600" />
+                <h3 className="font-display font-semibold text-stone-900 text-sm">AI Insights</h3>
+              </div>
+              <Link href="/intelligence" className="text-xs text-primary-700 hover:underline flex items-center gap-1">
+                Explore <ArrowUpRight size={12} />
+              </Link>
+            </div>
+            {insightsLoading ? (
+              <div className="space-y-2">{[...Array(2)].map((_, i) => <div key={i} className="h-10 skeleton" />)}</div>
+            ) : (
+              <div className="space-y-3">
+                <Link href="/intelligence" className="flex items-center gap-3 group">
+                  <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+                    <Lightbulb size={13} className="text-red-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-stone-800 group-hover:text-primary-700">
+                      {gapsTotal} unaddressed gap{gapsTotal !== 1 ? 's' : ''}
+                    </p>
+                    <p className="text-xs text-stone-400">Detected from research activity</p>
+                  </div>
+                </Link>
+                <Link href="/intelligence?tab=researchers" className="flex items-center gap-3 group">
+                  <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
+                    <Users size={13} className="text-purple-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-stone-800 group-hover:text-primary-700">
+                      {collabCount} potential collaborator{collabCount !== 1 ? 's' : ''}
+                    </p>
+                    <p className="text-xs text-stone-400">Matched by shared research tags</p>
+                  </div>
+                </Link>
+              </div>
+            )}
+          </div>
+
           {/* Quick actions */}
           <div className="card p-5">
             <h3 className="font-display font-semibold text-stone-900 mb-3">Quick actions</h3>

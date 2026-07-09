@@ -119,7 +119,7 @@ router.get('/search', authenticate, async (req, res, next) => {
     const { q } = req.query;
     if (!q || q.trim().length < 2) return res.json({ success: true, data: [] });
     const { rows } = await pool.query(
-      `SELECT u.id, u.full_name, u.profile_photo_url,
+      `SELECT u.id, u.full_name, u.email, u.profile_photo_url,
               dep.name AS department_name, uni.short_name AS university_short
        FROM users u
        LEFT JOIN departments dep ON dep.id = u.department_id
